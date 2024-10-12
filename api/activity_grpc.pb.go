@@ -19,9 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ActivityService_InsertActivity_FullMethodName   = "/api.ActivityService/InsertActivity"
-	ActivityService_RetrieveActivity_FullMethodName = "/api.ActivityService/RetrieveActivity"
-	ActivityService_ListActivity_FullMethodName     = "/api.ActivityService/ListActivity"
+	ActivityService_InsertActivity_FullMethodName = "/api.ActivityService/InsertActivity"
+	ActivityService_ListActivity_FullMethodName   = "/api.ActivityService/ListActivity"
 )
 
 // ActivityServiceClient is the client API for ActivityService service.
@@ -29,7 +28,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ActivityServiceClient interface {
 	InsertActivity(ctx context.Context, in *InsertActivityRequest, opts ...grpc.CallOption) (*InsertActivityResponse, error)
-	RetrieveActivity(ctx context.Context, in *RetrieveActivityRequest, opts ...grpc.CallOption) (*Activity, error)
 	ListActivity(ctx context.Context, in *ListActivityRequest, opts ...grpc.CallOption) (*Activities, error)
 }
 
@@ -51,16 +49,6 @@ func (c *activityServiceClient) InsertActivity(ctx context.Context, in *InsertAc
 	return out, nil
 }
 
-func (c *activityServiceClient) RetrieveActivity(ctx context.Context, in *RetrieveActivityRequest, opts ...grpc.CallOption) (*Activity, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Activity)
-	err := c.cc.Invoke(ctx, ActivityService_RetrieveActivity_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *activityServiceClient) ListActivity(ctx context.Context, in *ListActivityRequest, opts ...grpc.CallOption) (*Activities, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Activities)
@@ -76,7 +64,6 @@ func (c *activityServiceClient) ListActivity(ctx context.Context, in *ListActivi
 // for forward compatibility.
 type ActivityServiceServer interface {
 	InsertActivity(context.Context, *InsertActivityRequest) (*InsertActivityResponse, error)
-	RetrieveActivity(context.Context, *RetrieveActivityRequest) (*Activity, error)
 	ListActivity(context.Context, *ListActivityRequest) (*Activities, error)
 	mustEmbedUnimplementedActivityServiceServer()
 }
@@ -90,9 +77,6 @@ type UnimplementedActivityServiceServer struct{}
 
 func (UnimplementedActivityServiceServer) InsertActivity(context.Context, *InsertActivityRequest) (*InsertActivityResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InsertActivity not implemented")
-}
-func (UnimplementedActivityServiceServer) RetrieveActivity(context.Context, *RetrieveActivityRequest) (*Activity, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RetrieveActivity not implemented")
 }
 func (UnimplementedActivityServiceServer) ListActivity(context.Context, *ListActivityRequest) (*Activities, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListActivity not implemented")
@@ -136,24 +120,6 @@ func _ActivityService_InsertActivity_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ActivityService_RetrieveActivity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RetrieveActivityRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ActivityServiceServer).RetrieveActivity(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ActivityService_RetrieveActivity_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActivityServiceServer).RetrieveActivity(ctx, req.(*RetrieveActivityRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _ActivityService_ListActivity_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListActivityRequest)
 	if err := dec(in); err != nil {
@@ -182,10 +148,6 @@ var ActivityService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "InsertActivity",
 			Handler:    _ActivityService_InsertActivity_Handler,
-		},
-		{
-			MethodName: "RetrieveActivity",
-			Handler:    _ActivityService_RetrieveActivity_Handler,
 		},
 		{
 			MethodName: "ListActivity",
