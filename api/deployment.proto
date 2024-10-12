@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/thomas-illiet/terrapi-controller/api";
+
+service DeploymentService {
+  rpc GetDeployment(RetrieveDeploymentRequest) returns (Deployment)  {}
+}
+
+message RetrieveDeploymentRequest {
+  int32 id = 1;
+}
+
+message DeploymentModule {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  string status = 4;
+}
+
+message DeploymentRequest {
+  string action = 1;
+  repeated DeploymentRequestVariable variables = 2;
+}
+
+message DeploymentRequestVariable {
+  string name = 1;
+  string value = 2;
+  bool secret = 3;
+}
+
+message Deployment {
+  DeploymentModule module = 1;
+  DeploymentRequest request = 2;
+}
+
+message Deployments {
+  repeated Deployment activities = 1;
+}
+
+
+
+
+
+
