@@ -19,13 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	DeploymentService_GetDeployment_FullMethodName = "/api.DeploymentService/GetDeployment"
+	DeploymentService_StartDeployment_FullMethodName = "/api.DeploymentService/StartDeployment"
+	DeploymentService_StopDeployment_FullMethodName  = "/api.DeploymentService/StopDeployment"
+	DeploymentService_GetDeployment_FullMethodName   = "/api.DeploymentService/GetDeployment"
 )
 
 // DeploymentServiceClient is the client API for DeploymentService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DeploymentServiceClient interface {
+	StartDeployment(ctx context.Context, in *StartDeploymentRequest, opts ...grpc.CallOption) (*StartDeploymentResponse, error)
+	StopDeployment(ctx context.Context, in *StopDeploymentRequest, opts ...grpc.CallOption) (*StopDeploymentResponse, error)
 	GetDeployment(ctx context.Context, in *RetrieveDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error)
 }
 
@@ -35,6 +39,26 @@ type deploymentServiceClient struct {
 
 func NewDeploymentServiceClient(cc grpc.ClientConnInterface) DeploymentServiceClient {
 	return &deploymentServiceClient{cc}
+}
+
+func (c *deploymentServiceClient) StartDeployment(ctx context.Context, in *StartDeploymentRequest, opts ...grpc.CallOption) (*StartDeploymentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StartDeploymentResponse)
+	err := c.cc.Invoke(ctx, DeploymentService_StartDeployment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *deploymentServiceClient) StopDeployment(ctx context.Context, in *StopDeploymentRequest, opts ...grpc.CallOption) (*StopDeploymentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StopDeploymentResponse)
+	err := c.cc.Invoke(ctx, DeploymentService_StopDeployment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *deploymentServiceClient) GetDeployment(ctx context.Context, in *RetrieveDeploymentRequest, opts ...grpc.CallOption) (*Deployment, error) {
@@ -51,6 +75,8 @@ func (c *deploymentServiceClient) GetDeployment(ctx context.Context, in *Retriev
 // All implementations must embed UnimplementedDeploymentServiceServer
 // for forward compatibility.
 type DeploymentServiceServer interface {
+	StartDeployment(context.Context, *StartDeploymentRequest) (*StartDeploymentResponse, error)
+	StopDeployment(context.Context, *StopDeploymentRequest) (*StopDeploymentResponse, error)
 	GetDeployment(context.Context, *RetrieveDeploymentRequest) (*Deployment, error)
 	mustEmbedUnimplementedDeploymentServiceServer()
 }
@@ -62,6 +88,12 @@ type DeploymentServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedDeploymentServiceServer struct{}
 
+func (UnimplementedDeploymentServiceServer) StartDeployment(context.Context, *StartDeploymentRequest) (*StartDeploymentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartDeployment not implemented")
+}
+func (UnimplementedDeploymentServiceServer) StopDeployment(context.Context, *StopDeploymentRequest) (*StopDeploymentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StopDeployment not implemented")
+}
 func (UnimplementedDeploymentServiceServer) GetDeployment(context.Context, *RetrieveDeploymentRequest) (*Deployment, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDeployment not implemented")
 }
@@ -84,6 +116,42 @@ func RegisterDeploymentServiceServer(s grpc.ServiceRegistrar, srv DeploymentServ
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&DeploymentService_ServiceDesc, srv)
+}
+
+func _DeploymentService_StartDeployment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartDeploymentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeploymentServiceServer).StartDeployment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DeploymentService_StartDeployment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeploymentServiceServer).StartDeployment(ctx, req.(*StartDeploymentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DeploymentService_StopDeployment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StopDeploymentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeploymentServiceServer).StopDeployment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DeploymentService_StopDeployment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeploymentServiceServer).StopDeployment(ctx, req.(*StopDeploymentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _DeploymentService_GetDeployment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -111,6 +179,14 @@ var DeploymentService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "api.DeploymentService",
 	HandlerType: (*DeploymentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "StartDeployment",
+			Handler:    _DeploymentService_StartDeployment_Handler,
+		},
+		{
+			MethodName: "StopDeployment",
+			Handler:    _DeploymentService_StopDeployment_Handler,
+		},
 		{
 			MethodName: "GetDeployment",
 			Handler:    _DeploymentService_GetDeployment_Handler,

@@ -5,11 +5,30 @@ package api;
 option go_package = "github.com/thomas-illiet/terrapi-controller/api";
 
 service DeploymentService {
+  rpc StartDeployment(StartDeploymentRequest) returns (StartDeploymentResponse) {}
+  rpc StopDeployment(StopDeploymentRequest) returns (StopDeploymentResponse) {}
   rpc GetDeployment(RetrieveDeploymentRequest) returns (Deployment)  {}
 }
 
 message RetrieveDeploymentRequest {
   int32 id = 1;
+}
+
+message StopDeploymentRequest {
+  int32 id = 1;
+}
+
+message StopDeploymentResponse {
+  bool status = 1;
+  string message = 2;
+}
+
+message StartDeploymentRequest {
+  int32 id = 1;
+}
+
+message StartDeploymentResponse {
+  bool status = 1;
 }
 
 message DeploymentModule {
