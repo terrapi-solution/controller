@@ -5,6 +5,7 @@ import (
 	"github.com/terrapi-solution/protocol/activity"
 	"github.com/terrapi-solution/protocol/deployment"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	"log"
 )
 
@@ -18,7 +19,7 @@ type GrpcServer struct {
 	activity.UnimplementedActivityServiceServer
 }
 
-func (s *GrpcServer) NewGRPCServer() *grpc.Server {
+func NewGRPCServer() *grpc.Server {
 	// Initialise auth service & interceptor
 	authSvc, err := service.NewAuthService("https://id.netboot.fr/realms/master")
 	if err != nil {
@@ -43,6 +44,9 @@ func (s *GrpcServer) NewGRPCServer() *grpc.Server {
 	// Register the service with the server
 	deployment.RegisterDeploymentServiceServer(server, &srv)
 	activity.RegisterActivityServiceServer(server, &srv)
+
+	// Register reflection service on gRPC server.
+	reflection.Register(server)
 
 	// Return the grpc server
 	return server

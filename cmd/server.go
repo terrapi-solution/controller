@@ -1,12 +1,17 @@
 package cmd
 
 import (
+	"context"
+	"github.com/oklog/run"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/terrapi-solution/controller/internal/server"
-	"google.golang.org/grpc/reflection"
-	"log"
+	"google.golang.org/grpc"
 	"net"
+	"net/http"
+	"os"
+	"time"
 )
 
 var (
@@ -52,19 +57,56 @@ func init() {
 }
 
 func serverAction(_ *cobra.Command, _ []string) {
-	log.Println("Starting listening on port 8080")
+	var gr run.Group
 
+	// Setup grpc server
+	lis, grpcServer := createGrpcServer()
+	gr.Add(func() error {
+		log.Info().
+			Str("addr", cfg.Server.Addr).
+			Msg("Starting grpc server")
+
+		// Start the grpc server
+		return grpcServer.Serve(lis)
+	}, func(error) {
+		log.Info().Msg("Shutting down grpc server")
+		grpcServer.GracefulStop()
+	})
+
+	metricServer := createMetricServer()
+	gr.Add(func() error {
+		log.Info().
+			Str("addr", cfg.Metrics.Addr).
+			Msg("Starting metrics server")
+
+		return metricServer.ListenAndServe()
+	}, func(error) {
+		log.Info().Msg("Shutting down metric server")
+		metricServer.Shutdown(context.Background())
+	})
+
+	// Start the run group
+	if err := gr.Run(); err != nil {
+		log.Fatal().Err(err).Msg("Error running the server")
+		os.Exit(1)
+	}
+}
+
+func createGrpcServer() (net.Listener, *grpc.Server) {
 	lis, err := net.Listen("tcp", cfg.Server.Addr)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatal().Msgf("failed to listen: %v", err)
 	}
-	log.Printf("Listening on %s", cfg.Server.Addr)
-	srv := new(server.GrpcServer).NewGRPCServer()
 
-	// Register reflection service on gRPC server.
-	reflection.Register(srv)
+	return lis, server.NewGRPCServer()
 
-	if err := srv.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+}
+
+func createMetricServer() http.Server {
+	return http.Server{
+		Addr:         cfg.Metrics.Addr,
+		Handler:      server.Metrics(cfg),
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 }
