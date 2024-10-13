@@ -2,10 +2,11 @@ package config
 
 // Server defines the server configuration.
 type Server struct {
-	Host       string `mapstructure:"host"`
-	Port       uint   `mapstructure:"port"`
-	PrivateKey string `mapstructure:"cert"`
-	PublicKey  string `mapstructure:"key"`
+	Host string `mapstructure:"host"`
+	Port uint   `mapstructure:"port"`
+	Mode string `mapstructure:"mode"`
+	Cert string `mapstructure:"cert"`
+	Key  string `mapstructure:"key"`
 }
 
 // Datastore defines the database configuration.
