@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/thomas-illiet/terrapi-controller/internal/server"
+	"github.com/terrapi-solution/controller/internal/server"
 	"google.golang.org/grpc/reflection"
 	"log"
 	"net"

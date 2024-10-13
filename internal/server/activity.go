@@ -2,15 +2,15 @@ package server
 
 import (
 	"context"
-	"github.com/thomas-illiet/terrapi-controller/api"
+	rpc "github.com/terrapi-solution/protocol/activity"
 )
 
-func (s *GrpcServer) ListActivity(ctx context.Context, req *api.ListActivityRequest) (*api.Activities, error) {
-	activities := &api.Activities{}
+func (s *GrpcServer) ListActivity(ctx context.Context, req *rpc.ListActivityRequest) (*rpc.Activities, error) {
+	activities := &rpc.Activities{}
 	return activities, nil
 }
 
-func (s *GrpcServer) InsertActivity(ctx context.Context, req *api.InsertActivityRequest) (*api.InsertActivityResponse, error) {
-	response := &api.InsertActivityResponse{}
+func (s *GrpcServer) InsertActivity(ctx context.Context, req *rpc.InsertActivityRequest) (*rpc.InsertActivityResponse, error) {
+	response := &rpc.InsertActivityResponse{}
 	return response, nil
 }
