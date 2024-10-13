@@ -1,7 +1,6 @@
 package server
 
 import (
-	"context"
 	"github.com/thomas-illiet/terrapi-controller/api"
 	"github.com/thomas-illiet/terrapi-controller/internal/service"
 	"google.golang.org/grpc"
@@ -15,16 +14,21 @@ type GrpcServer struct {
 	Deployment *service.Deployment
 }
 
-var authService *service.Auth
-
-func init() {
-	authService = service.NewAuthService("https://id.netboot.fr/realms/master/protocol/openid-connect/certs")
-}
-
 func (s *GrpcServer) NewGRPCServer() *grpc.Server {
+	// Initialise our auth service & interceptor
+	authSvc, err := service.NewAuthService("https://id.netboot.fr/realms/master")
+	if err != nil {
+		log.Fatalf("failed to initialize auth service: %v", err)
+	}
+	interceptor, err := service.NewAuthInterceptorService(authSvc)
+	if err != nil {
+		log.Fatalf("failed to initialize interceptor: %v", err)
+	}
+
 	// Create a new grpc server
 	server := grpc.NewServer(
-		grpc.UnaryInterceptor(UnaryServerInterceptor))
+		grpc.UnaryInterceptor(interceptor.UnaryAuthMiddleware),
+	)
 
 	// Configure grpc instance
 	srv := GrpcServer{
@@ -39,13 +43,4 @@ func (s *GrpcServer) NewGRPCServer() *grpc.Server {
 
 	// Return the grpc server
 	return server
-}
-
-func UnaryServerInterceptor(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-	log.Printf("Received request on method: %s", info.FullMethod)
-	resp, err := handler(ctx, req)
-	log.Printf("Sending response from method: %s", info.FullMethod)
-	_, err = authService.Validate("ddd")
-	log.Printf(err.Error())
-	return resp, err
 }

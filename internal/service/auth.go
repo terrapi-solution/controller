@@ -20,16 +20,18 @@ type Auth struct {
 }
 
 // NewAuthService creates a new instance of the Auth service.
-func NewAuthService(authority string) *Auth {
+func NewAuthService(authority string) (*Auth, error) {
 	return &Auth{
 		authority: authority,
-	}
+	}, nil
 }
 
 // GetPublicKeys retrieves the RSA public keys from the JWK set.
 func (a *Auth) GetPublicKeys() map[string]*rsa.PublicKey {
 	if a.lastUpdate == nil || time.Since(*a.lastUpdate) > 6*time.Hour {
-		result, err := a.getJWKSet(a.authority)
+
+		jsonWebTokenAddress := a.authority + "/protocol/openid-connect/certs"
+		result, err := a.getJWKSet(jsonWebTokenAddress)
 		if err != nil && a.lastUpdate == nil {
 			panic(fmt.Errorf("unable to retrieve public keys: %v", err))
 		} else if err != nil && a.lastUpdate != nil {
@@ -43,8 +45,8 @@ func (a *Auth) GetPublicKeys() map[string]*rsa.PublicKey {
 	return a.publicKeys
 }
 
-// Validate parses and validates a JWT token string using the RSA public keys.
-func (a *Auth) Validate(tokenString string) (*jwt.Token, error) {
+// ValidateToken parses and validates a JWT token string using the RSA public keys.
+func (a *Auth) ValidateToken(tokenString string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
