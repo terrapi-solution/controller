@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/terrapi-solution/controller/internal/config"
 	"math/big"
 	"net/http"
 	"strings"
@@ -20,9 +21,9 @@ type Auth struct {
 }
 
 // NewAuthService creates a new instance of the Auth service.
-func NewAuthService(authority string) (*Auth, error) {
+func NewAuthService(cfg *config.Config) (*Auth, error) {
 	return &Auth{
-		authority: authority,
+		authority: cfg.Auth.Authority,
 	}, nil
 }
 

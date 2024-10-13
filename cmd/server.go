@@ -98,7 +98,7 @@ func createGrpcServer() (net.Listener, *grpc.Server) {
 		log.Fatal().Msgf("failed to listen: %v", err)
 	}
 
-	return lis, server.NewGRPCServer()
+	return lis, server.NewGRPCServer(cfg)
 
 }
 

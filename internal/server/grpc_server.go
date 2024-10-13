@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/terrapi-solution/controller/internal/config"
 	"github.com/terrapi-solution/controller/internal/service"
 	"github.com/terrapi-solution/protocol/activity"
 	"github.com/terrapi-solution/protocol/deployment"
@@ -19,9 +20,9 @@ type GrpcServer struct {
 	activity.UnimplementedActivityServiceServer
 }
 
-func NewGRPCServer() *grpc.Server {
+func NewGRPCServer(cfg *config.Config) *grpc.Server {
 	// Initialise auth service & interceptor
-	authSvc, err := service.NewAuthService("https://id.netboot.fr/realms/master")
+	authSvc, err := service.NewAuthService(cfg)
 	if err != nil {
 		log.Fatalf("failed to initialize auth service: %v", err)
 	}
