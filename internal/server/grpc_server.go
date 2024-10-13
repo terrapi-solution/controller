@@ -21,20 +21,26 @@ type GrpcServer struct {
 }
 
 func NewGRPCServer(cfg *config.Config) *grpc.Server {
-	// Initialise auth service & interceptor
-	authSvc, err := service.NewAuthService(cfg)
-	if err != nil {
-		log.Fatalf("failed to initialize auth service: %v", err)
-	}
-	interceptor, err := service.NewAuthInterceptorService(authSvc)
-	if err != nil {
-		log.Fatalf("failed to initialize interceptor: %v", err)
-	}
-
 	// Create a new grpc server
-	server := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptor.UnaryAuthMiddleware),
-	)
+	var server *grpc.Server
+	if cfg.Server.Mode == "OIDC" {
+		// Initialise auth service & interceptor
+		authSvc, err := service.NewAuthService(cfg)
+		if err != nil {
+			log.Fatalf("failed to initialize auth service: %v", err)
+		}
+		interceptor, err := service.NewAuthInterceptorService(authSvc)
+		if err != nil {
+			log.Fatalf("failed to initialize interceptor: %v", err)
+		}
+
+		// Create a new grpc server
+		server = grpc.NewServer(
+			grpc.UnaryInterceptor(interceptor.UnaryAuthMiddleware),
+		)
+	} else {
+		server = grpc.NewServer()
+	}
 
 	// Configure grpc instance
 	srv := GrpcServer{
