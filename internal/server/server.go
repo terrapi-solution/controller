@@ -9,14 +9,17 @@ import (
 )
 
 type GrpcServer struct {
-	deployment.UnimplementedDeploymentServiceServer
-	activity.UnimplementedActivityServiceServer
-	Activity   *service.Activity
+	// Deployment services
 	Deployment *service.Deployment
+	deployment.UnimplementedDeploymentServiceServer
+
+	// Activity services
+	Activity *service.Activity
+	activity.UnimplementedActivityServiceServer
 }
 
 func (s *GrpcServer) NewGRPCServer() *grpc.Server {
-	// Initialise our auth service & interceptor
+	// Initialise auth service & interceptor
 	authSvc, err := service.NewAuthService("https://id.netboot.fr/realms/master")
 	if err != nil {
 		log.Fatalf("failed to initialize auth service: %v", err)
@@ -33,7 +36,6 @@ func (s *GrpcServer) NewGRPCServer() *grpc.Server {
 
 	// Configure grpc instance
 	srv := GrpcServer{
-
 		Activity:   service.NewActivityService(),
 		Deployment: service.NewDeploymentService(),
 	}

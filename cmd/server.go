@@ -3,6 +3,10 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/terrapi-solution/controller/internal/server"
+	"google.golang.org/grpc/reflection"
+	"log"
+	"net"
 )
 
 var (
@@ -30,7 +34,7 @@ func init() {
 	serverCmd.PersistentFlags().String("metrics-token", "", "Token to make metrics secure")
 	viper.SetDefault("metrics.token", "")
 	_ = viper.BindPFlag("metrics.token", serverCmd.PersistentFlags().Lookup("metrics-token"))
-	//endregion
+	//endregion Metrics
 
 	//region Server
 	serverCmd.PersistentFlags().String("server-addr", defaultServerAddr, "Address to bind the server")
@@ -44,9 +48,23 @@ func init() {
 	serverCmd.PersistentFlags().String("server-key", defaultServerKey, "Path to key for SSL encryption")
 	viper.SetDefault("server.key", defaultServerKey)
 	_ = viper.BindPFlag("server.key", serverCmd.PersistentFlags().Lookup("server-key"))
-	//endregion
+	//endregion Server
 }
 
 func serverAction(_ *cobra.Command, _ []string) {
+	log.Println("Starting listening on port 8080")
 
+	lis, err := net.Listen("tcp", cfg.Server.Addr)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	log.Printf("Listening on %s", cfg.Server.Addr)
+	srv := new(server.GrpcServer).NewGRPCServer()
+
+	// Register reflection service on gRPC server.
+	reflection.Register(srv)
+
+	if err := srv.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }

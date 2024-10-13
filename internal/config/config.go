@@ -2,7 +2,7 @@ package config
 
 // Server defines the server configuration.
 type Server struct {
-	Host string `mapstructure:"host"`
+	Addr string `mapstructure:"addr"`
 	Port uint   `mapstructure:"port"`
 	Mode string `mapstructure:"mode"`
 	Cert string `mapstructure:"cert"`
