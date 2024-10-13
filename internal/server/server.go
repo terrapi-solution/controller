@@ -1,15 +1,16 @@
 package server
 
 import (
-	"github.com/thomas-illiet/terrapi-controller/api"
-	"github.com/thomas-illiet/terrapi-controller/internal/service"
+	"github.com/terrapi-solution/controller/internal/service"
+	"github.com/terrapi-solution/protocol/activity"
+	"github.com/terrapi-solution/protocol/deployment"
 	"google.golang.org/grpc"
 	"log"
 )
 
 type GrpcServer struct {
-	api.UnimplementedDeploymentServiceServer
-	api.UnimplementedActivityServiceServer
+	deployment.UnimplementedDeploymentServiceServer
+	activity.UnimplementedActivityServiceServer
 	Activity   *service.Activity
 	Deployment *service.Deployment
 }
@@ -38,8 +39,8 @@ func (s *GrpcServer) NewGRPCServer() *grpc.Server {
 	}
 
 	// Register the service with the server
-	api.RegisterDeploymentServiceServer(server, &srv)
-	api.RegisterActivityServiceServer(server, &srv)
+	deployment.RegisterDeploymentServiceServer(server, &srv)
+	activity.RegisterActivityServiceServer(server, &srv)
 
 	// Return the grpc server
 	return server
