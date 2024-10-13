@@ -8,6 +8,15 @@ type Server struct {
 	PublicKey  string `mapstructure:"key"`
 }
 
+// Datastore defines the database configuration.
+type Datastore struct {
+	Host     string `mapstructure:"host"`
+	Port     uint   `mapstructure:"port"`
+	Database string `mapstructure:"database"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+}
+
 // Metrics defines the metrics server configuration.
 type Metrics struct {
 	Addr  string `mapstructure:"addr"`
@@ -28,10 +37,11 @@ type Auth struct {
 
 // Config defines the general configuration.
 type Config struct {
-	Server  Server  `mapstructure:"server"`
-	Metrics Metrics `mapstructure:"metrics"`
-	Logs    Logs    `mapstructure:"log"`
-	Auth    Auth    `mapstructure:"auth"`
+	Auth      Auth      `mapstructure:"auth"`
+	Datastore Datastore `mapstructure:"datastore"`
+	Logs      Logs      `mapstructure:"log"`
+	Metrics   Metrics   `mapstructure:"metrics"`
+	Server    Server    `mapstructure:"server"`
 }
 
 // Load initializes a default configuration struct.
