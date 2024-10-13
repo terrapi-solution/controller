@@ -26,6 +26,9 @@ var (
 	defaultServerAddr  = "0.0.0.0:8080"
 	defaultServerCert  = ""
 	defaultServerKey   = ""
+	defaultLogLevel    = "info"
+	defaultLogPretty   = true
+	defaultLogColor    = true
 )
 
 func init() {
@@ -54,6 +57,20 @@ func init() {
 	viper.SetDefault("server.key", defaultServerKey)
 	_ = viper.BindPFlag("server.key", serverCmd.PersistentFlags().Lookup("server-key"))
 	//endregion Server
+
+	//region Logger
+	serverCmd.PersistentFlags().String("log-level", defaultLogLevel, "Log level (panic, fatal, error, warn, info, debug)")
+	viper.SetDefault("log.level", defaultLogLevel)
+	_ = viper.BindPFlag("log.level", serverCmd.PersistentFlags().Lookup("log-level"))
+
+	serverCmd.PersistentFlags().Bool("log-pretty", defaultLogPretty, "Enable pretty logging output")
+	viper.SetDefault("log.pretty", defaultLogPretty)
+	_ = viper.BindPFlag("log.pretty", serverCmd.PersistentFlags().Lookup("log-pretty"))
+
+	serverCmd.PersistentFlags().Bool("log-color", defaultLogColor, "Enable colored logging output")
+	viper.SetDefault("log.color", defaultLogColor)
+	_ = viper.BindPFlag("log.color", serverCmd.PersistentFlags().Lookup("log-color"))
+	//endregion Logger
 }
 
 func serverAction(_ *cobra.Command, _ []string) {
