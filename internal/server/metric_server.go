@@ -9,6 +9,9 @@ import (
 
 // Metrics initializes the routing of metrics and health.
 func Metrics(cfg *config.Config) *gin.Engine {
+	// Set the router to release mode
+	gin.SetMode(gin.ReleaseMode)
+
 	// Creates a router without any middleware
 	r := gin.New()
 
