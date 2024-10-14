@@ -139,6 +139,8 @@ github.com/terrapi-solution/protocol v1.1.1 h1:lNEoO1RTGQMEAD6AI+v1hOG3x8nfUfCpi
 github.com/terrapi-solution/protocol v1.1.1/go.mod h1:IjnhZJHmD0BpDjLdkcjpDQi2Vg+BzNwL2BXcEFC/1vg=
 github.com/terrapi-solution/protocol v1.2.0 h1:4xsMSnUzryCafwiJEa41x4TZd3QZ3Rr454q28/IIVZM=
 github.com/terrapi-solution/protocol v1.2.0/go.mod h1:IjnhZJHmD0BpDjLdkcjpDQi2Vg+BzNwL2BXcEFC/1vg=
+github.com/terrapi-solution/protocol v1.2.1 h1:MgSwl91PLgVmRMh3gLu4478QWwi+9oivPzd/ZByO0Pk=
+github.com/terrapi-solution/protocol v1.2.1/go.mod h1:IjnhZJHmD0BpDjLdkcjpDQi2Vg+BzNwL2BXcEFC/1vg=
 github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS4MhqMhdFk5YI=
 github.com/twitchyliquid64/golang-asm v0.15.1/go.mod h1:a1lVb/DtPvCB8fslRZhAngC2+aY1QWCk3Cedj/Gdt08=
 github.com/ugorji/go/codec v1.2.12 h1:9LC83zGrHhuUA9l16C9AHXAqEV/2wBQ4nkvumAE65EE=
