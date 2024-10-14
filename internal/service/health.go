@@ -15,12 +15,14 @@ type HealthService struct {
 
 func NewHealthService() *HealthService {
 	return &HealthService{
-		cfg: config.Load(),
+		cfg: config.Get(),
 	}
 }
 
 // CheckController checks the health of the controller service.
 func (s *HealthService) CheckController() rpc.HealthCheck_ServingStatus {
+	// Always return SERVING for the controller service
+	// Because I'm the controller—obviously, everything revolves around me!
 	return rpc.HealthCheck_SERVING
 }
 

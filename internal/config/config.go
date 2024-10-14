@@ -55,6 +55,11 @@ func Load() *Config {
 	return &Config{}
 }
 
+// Get returns the global configuration.
+func Get() *Config {
+	return globalConfig
+}
+
 // Set returns the global configuration.
 func Set(config *Config) {
 	globalConfig = config

@@ -135,6 +135,7 @@ func init() {
 }
 
 func serverAction(_ *cobra.Command, _ []string) {
+	// Create a run group to manage the lifecycle of the application.
 	var gr run.Group
 
 	// Setup grpc server
