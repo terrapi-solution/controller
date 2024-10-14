@@ -10,7 +10,7 @@ require (
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
-	github.com/terrapi-solution/protocol v1.2.1
+	github.com/terrapi-solution/protocol v1.2.2
 	google.golang.org/grpc v1.67.1
 )
 
