@@ -21,7 +21,7 @@ type Datastore struct {
 	Password string `mapstructure:"password"`
 }
 
-// Metrics defines the metrics server configuration.
+// Metric defines the metrics server configuration.
 type Metric struct {
 	Status bool   `mapstructure:"status"`
 	Host   string `mapstructure:"host"`
