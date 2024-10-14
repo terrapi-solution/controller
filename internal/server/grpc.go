@@ -16,7 +16,22 @@ import (
 // NewGRPCServer creates a new grpc server
 func NewGRPCServer(cfg *config.Config) *grpc.Server {
 	// Create a new grpc server
-	var server *grpc.Server
+	server := getGrpcServer(cfg)
+
+	// Register the service with the server
+	deployment.RegisterDeploymentServiceServer(server, &controller.DeploymentServer{})
+	activity.RegisterActivityServiceServer(server, &controller.ActivityServer{})
+	health.RegisterHealthServiceServer(server, &controller.HealthServer{})
+
+	// Register reflection service on gRPC server.
+	reflection.Register(server)
+
+	// Return the grpc server
+	return server
+}
+
+// getGrpcServer creates a new grpc server
+func getGrpcServer(cfg *config.Config) *grpc.Server {
 	if cfg.Server.Mode == "OIDC" {
 		// Initialise auth service & interceptor
 		authSvc, err := service.NewAuthService(cfg)
@@ -29,21 +44,10 @@ func NewGRPCServer(cfg *config.Config) *grpc.Server {
 		}
 
 		// Create a new grpc server
-		server = grpc.NewServer(
+		return grpc.NewServer(
 			grpc.UnaryInterceptor(interceptor.UnaryAuthMiddleware),
 		)
 	} else {
-		server = grpc.NewServer()
+		return grpc.NewServer()
 	}
-
-	// Register the service with the server
-	deployment.RegisterDeploymentServiceServer(server, &controller.DeploymentServer{})
-	activity.RegisterActivityServiceServer(server, &controller.ActivityServer{})
-	health.RegisterHealthServiceServer(server, &controller.HealthServer{})
-
-	// Register reflection service on gRPC server.
-	reflection.Register(server)
-
-	// Return the grpc server
-	return server
 }
