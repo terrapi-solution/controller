@@ -5,7 +5,7 @@ var globalConfig *Config
 
 // Server defines the server configuration.
 type Server struct {
-	Addr string `mapstructure:"addr"`
+	Host string `mapstructure:"host"`
 	Port int    `mapstructure:"port"`
 	Mode string `mapstructure:"mode"`
 	Cert string `mapstructure:"cert"`
@@ -22,9 +22,11 @@ type Datastore struct {
 }
 
 // Metrics defines the metrics server configuration.
-type Metrics struct {
-	Addr  string `mapstructure:"addr"`
-	Token string `mapstructure:"token"`
+type Metric struct {
+	Status bool   `mapstructure:"status"`
+	Host   string `mapstructure:"host"`
+	Port   int    `mapstructure:"port"`
+	Token  string `mapstructure:"token"`
 }
 
 // Logs defines the level and color for log configuration.
@@ -43,7 +45,7 @@ type State struct {
 
 // Auth defines the OpenID Connect configuration.
 type Auth struct {
-	Authority string
+	Authority string `mapstructure:"authority"`
 }
 
 // Config defines the general configuration.
@@ -51,7 +53,7 @@ type Config struct {
 	Auth      Auth      `mapstructure:"auth"`
 	Datastore Datastore `mapstructure:"datastore"`
 	Logs      Logs      `mapstructure:"log"`
-	Metrics   Metrics   `mapstructure:"metrics"`
+	Metric    Metric    `mapstructure:"metric"`
 	Server    Server    `mapstructure:"server"`
 	State     State     `mapstructure:"state"`
 }
@@ -61,7 +63,7 @@ func Load() *Config {
 	return &Config{}
 }
 
+// Set returns the global configuration.
 func Set(config *Config) {
-	// Set the global configuration
 	globalConfig = config
 }

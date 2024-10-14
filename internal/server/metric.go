@@ -16,7 +16,7 @@ func Metrics(cfg *config.Config) *gin.Engine {
 	r := gin.New()
 
 	// endpoint for prometheus metrics
-	r.GET("/metrics", metricHandler(cfg.Metrics.Token))
+	r.GET("/metrics", metricHandler(cfg.Metric.Token))
 
 	return r
 }

@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -22,55 +23,133 @@ var (
 		Args:  cobra.NoArgs,
 	}
 
-	defaultMetricsAddr = "0.0.0.0:8081"
-	defaultServerAddr  = "0.0.0.0:8080"
-	defaultServerCert  = ""
-	defaultServerKey   = ""
-	defaultLogLevel    = "info"
-	defaultLogPretty   = true
-	defaultLogColor    = true
+	// Server configuration
+	defaultServerHost = "0.0.0.0"
+	defaultServerPort = 8080
+	defaultServerMode = ""
+	defaultServerCert = ""
+	defaultServerKey  = ""
+
+	// Datastore configuration
+	defaultDatastoreHost     = "localhost"
+	defaultDatastorePort     = 5432
+	defaultDatastoreDatabase = "terrapi"
+	defaultDatastoreUser     = ""
+	defaultDatastorePassword = ""
+
+	// Metric configuration
+	defaultMetricStatus = true
+	defaultMetricHost   = "localhost"
+	defaultMetricPort   = 8081
+	defaultMetricToken  = ""
+
+	// Logger configuration
+	defaultLogLevel  = "info"
+	defaultLogPretty = true
+	defaultLogColor  = true
+
+	// State configuration
+	defaultStateStatus = false
+	defaultStateHost   = "localhost"
+	defaultStatePort   = 8082
+
+	// Auth configuration
+	defaultAuthAuthority = ""
 )
 
+// Initialization of CLI flags and viper config binding
 func init() {
 	rootCmd.AddCommand(serverCmd)
 
-	//region Metrics
-	serverCmd.PersistentFlags().String("metrics-addr", defaultMetricsAddr, "Address to bind the metrics")
-	viper.SetDefault("metrics.addr", defaultMetricsAddr)
-	_ = viper.BindPFlag("metrics.addr", serverCmd.PersistentFlags().Lookup("metrics-addr"))
+	// Server configuration
+	serverCmd.PersistentFlags().String("server-host", defaultServerHost, "Host address to bind the server to")
+	viper.SetDefault("server.host", defaultServerHost)
+	_ = viper.BindPFlag("server.host", serverCmd.PersistentFlags().Lookup("server-host"))
 
-	serverCmd.PersistentFlags().String("metrics-token", "", "Token to make metrics secure")
-	viper.SetDefault("metrics.token", "")
-	_ = viper.BindPFlag("metrics.token", serverCmd.PersistentFlags().Lookup("metrics-token"))
-	//endregion Metrics
+	serverCmd.PersistentFlags().Int("server-port", defaultServerPort, "Port number for the server to listen on")
+	viper.SetDefault("server.port", defaultServerPort)
+	_ = viper.BindPFlag("server.port", serverCmd.PersistentFlags().Lookup("server-port"))
 
-	//region Server
-	serverCmd.PersistentFlags().String("server-addr", defaultServerAddr, "Address to bind the server")
-	viper.SetDefault("server.addr", defaultServerAddr)
-	_ = viper.BindPFlag("server.addr", serverCmd.PersistentFlags().Lookup("server-addr"))
+	serverCmd.PersistentFlags().String("server-mode", defaultServerMode, "Server mode (e.g., production, development)")
+	viper.SetDefault("server.mode", defaultServerMode)
+	_ = viper.BindPFlag("server.mode", serverCmd.PersistentFlags().Lookup("server-mode"))
 
-	serverCmd.PersistentFlags().String("server-cert", defaultServerCert, "Path to cert for SSL encryption")
+	serverCmd.PersistentFlags().String("server-cert", defaultServerCert, "Path to SSL certificate file for secure connections")
 	viper.SetDefault("server.cert", defaultServerCert)
 	_ = viper.BindPFlag("server.cert", serverCmd.PersistentFlags().Lookup("server-cert"))
 
-	serverCmd.PersistentFlags().String("server-key", defaultServerKey, "Path to key for SSL encryption")
+	serverCmd.PersistentFlags().String("server-key", defaultServerKey, "Path to SSL key file for secure connections")
 	viper.SetDefault("server.key", defaultServerKey)
 	_ = viper.BindPFlag("server.key", serverCmd.PersistentFlags().Lookup("server-key"))
-	//endregion Server
 
-	//region Logger
-	serverCmd.PersistentFlags().String("log-level", defaultLogLevel, "Log level (panic, fatal, error, warn, info, debug)")
+	// Datastore configuration
+	serverCmd.PersistentFlags().String("datastore-host", defaultDatastoreHost, "Host address of the datastore")
+	viper.SetDefault("datastore.host", defaultDatastoreHost)
+	_ = viper.BindPFlag("datastore.host", serverCmd.PersistentFlags().Lookup("datastore-host"))
+
+	serverCmd.PersistentFlags().Int("datastore-port", defaultDatastorePort, "Port number to connect to the datastore")
+	viper.SetDefault("datastore.port", defaultDatastorePort)
+	_ = viper.BindPFlag("datastore.port", serverCmd.PersistentFlags().Lookup("datastore-port"))
+
+	serverCmd.PersistentFlags().String("datastore-database", defaultDatastoreDatabase, "Name of the database to use in the datastore")
+	viper.SetDefault("datastore.database", defaultDatastoreDatabase)
+	_ = viper.BindPFlag("datastore.database", serverCmd.PersistentFlags().Lookup("datastore-database"))
+
+	serverCmd.PersistentFlags().String("datastore-username", defaultDatastoreUser, "Username for connecting to the datastore")
+	viper.SetDefault("datastore.username", defaultDatastoreUser)
+	_ = viper.BindPFlag("datastore.username", serverCmd.PersistentFlags().Lookup("datastore-username"))
+
+	serverCmd.PersistentFlags().String("datastore-password", defaultDatastorePassword, "Password for connecting to the datastore")
+	viper.SetDefault("datastore.password", defaultDatastorePassword)
+	_ = viper.BindPFlag("datastore.password", serverCmd.PersistentFlags().Lookup("datastore-password"))
+
+	// Metric configuration
+	serverCmd.PersistentFlags().Bool("metric-status", defaultMetricStatus, "Enable or disable metric collection")
+	viper.SetDefault("metric.status", defaultMetricStatus)
+	_ = viper.BindPFlag("metric.status", serverCmd.PersistentFlags().Lookup("metric-status"))
+
+	serverCmd.PersistentFlags().String("metric-host", defaultMetricHost, "Host address for the metric service")
+	viper.SetDefault("metric.host", defaultMetricHost)
+	_ = viper.BindPFlag("metric.host", serverCmd.PersistentFlags().Lookup("metric-host"))
+
+	serverCmd.PersistentFlags().Int("metric-port", defaultMetricPort, "Port number for the metric service")
+	viper.SetDefault("metric.port", defaultMetricPort)
+	_ = viper.BindPFlag("metric.port", serverCmd.PersistentFlags().Lookup("metric-port"))
+
+	serverCmd.PersistentFlags().String("metric-token", defaultMetricToken, "Authentication token for accessing the metric service")
+	viper.SetDefault("metric.token", defaultMetricToken)
+	_ = viper.BindPFlag("metric.token", serverCmd.PersistentFlags().Lookup("metric-token"))
+
+	// Logger configuration
+	serverCmd.PersistentFlags().String("log-level", defaultLogLevel, "Log verbosity level (options: panic, fatal, error, warn, info, debug)")
 	viper.SetDefault("log.level", defaultLogLevel)
 	_ = viper.BindPFlag("log.level", serverCmd.PersistentFlags().Lookup("log-level"))
 
-	serverCmd.PersistentFlags().Bool("log-pretty", defaultLogPretty, "Enable pretty logging output")
+	serverCmd.PersistentFlags().Bool("log-pretty", defaultLogPretty, "Enable pretty-printed logging output")
 	viper.SetDefault("log.pretty", defaultLogPretty)
 	_ = viper.BindPFlag("log.pretty", serverCmd.PersistentFlags().Lookup("log-pretty"))
 
-	serverCmd.PersistentFlags().Bool("log-color", defaultLogColor, "Enable colored logging output")
+	serverCmd.PersistentFlags().Bool("log-color", defaultLogColor, "Enable colorized logging output")
 	viper.SetDefault("log.color", defaultLogColor)
 	_ = viper.BindPFlag("log.color", serverCmd.PersistentFlags().Lookup("log-color"))
-	//endregion Logger
+
+	// State configuration
+	serverCmd.PersistentFlags().Bool("state-status", defaultStateStatus, "Enable or disable state service")
+	viper.SetDefault("state.status", defaultStateStatus)
+	_ = viper.BindPFlag("state.status", serverCmd.PersistentFlags().Lookup("state-status"))
+
+	serverCmd.PersistentFlags().String("state-host", defaultStateHost, "Host address for the state service")
+	viper.SetDefault("state.host", defaultStateHost)
+	_ = viper.BindPFlag("state.host", serverCmd.PersistentFlags().Lookup("state-host"))
+
+	serverCmd.PersistentFlags().Int("state-port", defaultStatePort, "Port number for the state service")
+	viper.SetDefault("state.port", defaultStatePort)
+	_ = viper.BindPFlag("state.port", serverCmd.PersistentFlags().Lookup("state-port"))
+
+	// Auth configuration
+	serverCmd.PersistentFlags().String("auth-authority", defaultAuthAuthority, "Authority URL for authentication service")
+	viper.SetDefault("auth.authority", defaultAuthAuthority)
+	_ = viper.BindPFlag("auth.authority", serverCmd.PersistentFlags().Lookup("auth-authority"))
 }
 
 func serverAction(_ *cobra.Command, _ []string) {
@@ -80,7 +159,8 @@ func serverAction(_ *cobra.Command, _ []string) {
 	lis, grpcServer := createGrpcServer()
 	gr.Add(func() error {
 		log.Info().
-			Str("addr", cfg.Server.Addr).
+			Str("host", cfg.Server.Host).
+			Int("port", cfg.Server.Port).
 			Msg("Starting grpc server")
 
 		// Start the grpc server
@@ -93,7 +173,8 @@ func serverAction(_ *cobra.Command, _ []string) {
 	metricServer := createMetricServer()
 	gr.Add(func() error {
 		log.Info().
-			Str("addr", cfg.Metrics.Addr).
+			Str("host", cfg.Metric.Host).
+			Int("port", cfg.Metric.Port).
 			Msg("Starting metrics server")
 
 		return metricServer.ListenAndServe()
@@ -110,7 +191,8 @@ func serverAction(_ *cobra.Command, _ []string) {
 }
 
 func createGrpcServer() (net.Listener, *grpc.Server) {
-	lis, err := net.Listen("tcp", cfg.Server.Addr)
+	address := net.JoinHostPort(cfg.Server.Host, strconv.Itoa(cfg.Server.Port))
+	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatal().Msgf("failed to listen: %v", err)
 	}
@@ -120,8 +202,9 @@ func createGrpcServer() (net.Listener, *grpc.Server) {
 }
 
 func createMetricServer() http.Server {
+	address := net.JoinHostPort(cfg.Metric.Host, strconv.Itoa(cfg.Metric.Port))
 	return http.Server{
-		Addr:         cfg.Metrics.Addr,
+		Addr:         address,
 		Handler:      server.Metrics(cfg),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
