@@ -1,5 +1,5 @@
 # Use a specific version tag for better reproducibility
-FROM redhat/ubi9-micro:9.4
+FROM redhat/ubi9-micro:9.4-15
 
 # Copy the binary to the appropriate directory
 COPY bin/terrapi-runner /usr/bin/terrapi-controller
