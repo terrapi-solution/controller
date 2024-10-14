@@ -32,22 +32,22 @@ func NewGRPCServer(cfg *config.Config) *grpc.Server {
 
 // getGrpcServer creates a new grpc server
 func getGrpcServer(cfg *config.Config) *grpc.Server {
-	if cfg.Server.Mode == "OIDC" {
-		// Initialise auth service & interceptor
-		authSvc, err := service.NewAuthService(cfg)
-		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to initialize auth service")
-		}
-		interceptor, err := service.NewAuthInterceptorService(authSvc)
-		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to initialize interceptor")
-		}
-
-		// Create a new grpc server
-		return grpc.NewServer(
-			grpc.UnaryInterceptor(interceptor.UnaryAuthMiddleware),
-		)
-	} else {
+	if cfg.Server.Mode != "OIDC" {
 		return grpc.NewServer()
 	}
+
+	// Initialise auth service & interceptor
+	authSvc, err := service.NewAuthService(cfg)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to initialize auth service")
+	}
+	interceptor, err := service.NewAuthInterceptorService(authSvc)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to initialize interceptor")
+	}
+
+	// Create a new grpc server with the interceptor
+	return grpc.NewServer(
+		grpc.UnaryInterceptor(interceptor.UnaryAuthMiddleware),
+	)
 }
