@@ -1,5 +1,8 @@
 package config
 
+// Config defines the general configuration
+var globalConfig *Config
+
 // Server defines the server configuration.
 type Server struct {
 	Addr string `mapstructure:"addr"`
@@ -48,4 +51,9 @@ type Config struct {
 // Load initializes a default configuration struct.
 func Load() *Config {
 	return &Config{}
+}
+
+func Set(config *Config) {
+	// Set the global configuration
+	globalConfig = config
 }

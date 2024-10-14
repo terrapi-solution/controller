@@ -5,6 +5,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+	"github.com/terrapi-solution/controller/internal/config"
 
 	"os"
 	"strings"
@@ -65,6 +66,9 @@ func setupConfig() {
 			Err(err).
 			Msg("Failed to parse config file")
 	}
+
+	// Set the global configuration.
+	config.Set(cfg)
 }
 
 func readConfig() error {
