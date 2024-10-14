@@ -1,0 +1,11 @@
+# Use a specific version tag for better reproducibility
+FROM redhat/ubi9-micro:9.4
+
+# Copy the binary to the appropriate directory
+COPY bin/terrapi-runner /usr/bin/terrapi-controller
+
+# Ensure the binary has execute permissions
+RUN chmod +x /usr/bin/terrapi-controller
+
+# Set the entrypoint
+ENTRYPOINT ["/usr/bin/terrapi-controller"]
