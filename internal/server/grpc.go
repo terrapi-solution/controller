@@ -16,7 +16,7 @@ import (
 // NewGRPCServer initializes and returns a gRPC server
 func NewGRPCServer(cfg *config.Config) *grpc.Server {
 	// Create a new gRPC server
-	server := NewGrpcServer(cfg)
+	server := newGrpcServer(cfg)
 
 	// Register all gRPC services
 	deployment.RegisterDeploymentServiceServer(server, &controller.DeploymentServer{})
@@ -31,7 +31,7 @@ func NewGRPCServer(cfg *config.Config) *grpc.Server {
 }
 
 // NewGrpcServer creates a new grpc server
-func NewGrpcServer(cfg *config.Config) *grpc.Server {
+func newGrpcServer(cfg *config.Config) *grpc.Server {
 	if cfg.Server.Mode != "OIDC" {
 		return grpc.NewServer()
 	}
