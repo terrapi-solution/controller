@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/rs/zerolog/log"
 	"github.com/terrapi-solution/controller/controller"
 	"github.com/terrapi-solution/controller/internal/config"
 	"github.com/terrapi-solution/controller/internal/service"
@@ -10,7 +11,6 @@ import (
 	"google.golang.org/grpc"
 
 	"google.golang.org/grpc/reflection"
-	"log"
 )
 
 // NewGRPCServer creates a new grpc server
@@ -21,11 +21,11 @@ func NewGRPCServer(cfg *config.Config) *grpc.Server {
 		// Initialise auth service & interceptor
 		authSvc, err := service.NewAuthService(cfg)
 		if err != nil {
-			log.Fatalf("failed to initialize auth service: %v", err)
+			log.Fatal().Err(err).Msgf("failed to initialize auth service")
 		}
 		interceptor, err := service.NewAuthInterceptorService(authSvc)
 		if err != nil {
-			log.Fatalf("failed to initialize interceptor: %v", err)
+			log.Fatal().Err(err).Msgf("failed to initialize interceptor")
 		}
 
 		// Create a new grpc server
@@ -35,12 +35,6 @@ func NewGRPCServer(cfg *config.Config) *grpc.Server {
 	} else {
 		server = grpc.NewServer()
 	}
-
-	// Configure grpc instance
-	//srv := GrpcServer{
-	//	Activity:   service.NewActivityService(),
-	//	Deployment: service.NewDeploymentService(),
-	//}
 
 	// Register the service with the server
 	deployment.RegisterDeploymentServiceServer(server, &controller.DeploymentServer{})
