@@ -2,46 +2,34 @@ package controller
 
 import (
 	"context"
+	"github.com/terrapi-solution/controller/internal/service"
 	rpc "github.com/terrapi-solution/protocol/health"
 )
 
 // HealthServer implements the HealthServiceServer interface.
 type HealthServer struct {
 	rpc.HealthServiceServer
+	service service.HealthService
 }
 
 // Check performs a health check for the specified service.
-func (s *HealthServer) Check(ctx context.Context, req *rpc.HealthCheckRequest) (*rpc.HealthCheckResponse, error) {
-	statusMap := map[string]func() rpc.HealthCheckResponse_ServingStatus{
-		"controller": s.checkController,
-		"database":   s.checkDatabase,
-		"state":      s.checkState,
+func (s *HealthServer) Check(ctx context.Context, req *rpc.CheckRequest) (*rpc.HealthCheck, error) {
+	service := service.NewHealthService()
+	statusMap := map[string]func() rpc.HealthCheck_ServingStatus{
+		"controller": service.CheckController,
+		"database":   service.CheckDatabase,
+		"state":      service.CheckState,
 	}
 
 	checkFunc, exists := statusMap[req.Service]
 	if !exists {
 		// Return unknown status if the service is not recognized
-		return &rpc.HealthCheckResponse{
-			Status: rpc.HealthCheckResponse_SERVICE_UNKNOWN,
+		return &rpc.HealthCheck{
+			Status: rpc.HealthCheck_UNKNOWN,
 		}, nil
 	}
 
-	return &rpc.HealthCheckResponse{
+	return &rpc.HealthCheck{
 		Status: checkFunc(),
 	}, nil
-}
-
-// checkController checks the health of the controller service.
-func (s *HealthServer) checkController() rpc.HealthCheckResponse_ServingStatus {
-	return rpc.HealthCheckResponse_SERVING
-}
-
-// checkDatabase checks the health of the database service.
-func (s *HealthServer) checkDatabase() rpc.HealthCheckResponse_ServingStatus {
-	return rpc.HealthCheckResponse_SERVING
-}
-
-// checkState checks the health of the state service.
-func (s *HealthServer) checkState() rpc.HealthCheckResponse_ServingStatus {
-	return rpc.HealthCheckResponse_SERVING
 }
