@@ -15,7 +15,10 @@ type HealthServer struct {
 
 // Check performs a health check for the specified service.
 func (s *HealthServer) Check(ctx context.Context, req *rpc.CheckRequest) (*rpc.HealthCheck, error) {
+	// Create a new health service
 	h := service.NewHealthService()
+
+	// Map the service name to the corresponding health check function
 	statusMap := map[string]func() rpc.HealthCheck_ServingStatus{
 		"controller": h.CheckController,
 		"database":   h.CheckDatabase,
