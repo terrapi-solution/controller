@@ -34,22 +34,6 @@ func (s *HealthService) CheckDatabase() rpc.HealthCheck_ServingStatus {
 	}
 }
 
-// CheckState checks the health of the state service.
-func (s *HealthService) CheckState() rpc.HealthCheck_ServingStatus {
-	// Return true if the state service is disabled,
-	// In order to avoid send error to the client.
-	if !s.cfg.State.Status {
-		return rpc.HealthCheck_SERVING
-	}
-
-	// Check the state service using a TCP health check
-	if s.checkTCP(s.cfg.State.Host, s.cfg.State.Port, 5*time.Second) {
-		return rpc.HealthCheck_SERVING
-	} else {
-		return rpc.HealthCheck_NOT_SERVING
-	}
-}
-
 // checkTCP performs a health check on a service using TCP
 func (s *HealthService) checkTCP(host string, port int, timeout time.Duration) bool {
 	// Create the address for the TCP connection

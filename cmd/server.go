@@ -48,11 +48,6 @@ var (
 	defaultLogPretty = true
 	defaultLogColor  = true
 
-	// State configuration
-	defaultStateStatus = false
-	defaultStateHost   = "localhost"
-	defaultStatePort   = 8082
-
 	// Auth configuration
 	defaultAuthAuthority = ""
 )
@@ -132,19 +127,6 @@ func init() {
 	serverCmd.PersistentFlags().Bool("log-color", defaultLogColor, "Enable colorized logging output")
 	viper.SetDefault("log.color", defaultLogColor)
 	_ = viper.BindPFlag("log.color", serverCmd.PersistentFlags().Lookup("log-color"))
-
-	// State configuration
-	serverCmd.PersistentFlags().Bool("state-status", defaultStateStatus, "Enable or disable state service")
-	viper.SetDefault("state.status", defaultStateStatus)
-	_ = viper.BindPFlag("state.status", serverCmd.PersistentFlags().Lookup("state-status"))
-
-	serverCmd.PersistentFlags().String("state-host", defaultStateHost, "Host address for the state service")
-	viper.SetDefault("state.host", defaultStateHost)
-	_ = viper.BindPFlag("state.host", serverCmd.PersistentFlags().Lookup("state-host"))
-
-	serverCmd.PersistentFlags().Int("state-port", defaultStatePort, "Port number for the state service")
-	viper.SetDefault("state.port", defaultStatePort)
-	_ = viper.BindPFlag("state.port", serverCmd.PersistentFlags().Lookup("state-port"))
 
 	// Auth configuration
 	serverCmd.PersistentFlags().String("auth-authority", defaultAuthAuthority, "Authority URL for authentication service")

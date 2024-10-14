@@ -36,13 +36,6 @@ type Logs struct {
 	Color  bool   `mapstructure:"color"`
 }
 
-// State defines the state server configuration.
-type State struct {
-	Status bool   `mapstructure:"status"`
-	Host   string `mapstructure:"host"`
-	Port   int    `mapstructure:"port"`
-}
-
 // Auth defines the OpenID Connect configuration.
 type Auth struct {
 	Authority string `mapstructure:"authority"`
@@ -55,7 +48,6 @@ type Config struct {
 	Logs      Logs      `mapstructure:"log"`
 	Metric    Metric    `mapstructure:"metric"`
 	Server    Server    `mapstructure:"server"`
-	State     State     `mapstructure:"state"`
 }
 
 // Load initializes a default configuration struct.
