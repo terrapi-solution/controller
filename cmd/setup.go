@@ -6,7 +6,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"github.com/terrapi-solution/controller/internal/config"
-
 	"os"
 	"strings"
 )
@@ -29,13 +28,19 @@ func setupLogger() error {
 		zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	}
 
+	// Override the default logger with the custom logger.
 	if viper.GetBool("log.pretty") {
-		log.Logger = log.Output(
+		log.Logger = log.With().
+			Timestamp().Caller().
+			Logger().Output(
 			zerolog.ConsoleWriter{
 				Out:     os.Stderr,
 				NoColor: !viper.GetBool("log.color"),
 			},
 		)
+	} else {
+		log.Logger = log.With().
+			Timestamp().Caller().Logger()
 	}
 
 	return nil
