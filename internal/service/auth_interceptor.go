@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"log"
 )
 
 type (
@@ -52,15 +51,4 @@ func (i *AuthInterceptor) UnaryAuthMiddleware(ctx context.Context, req any, info
 
 	// call our handler
 	return handler(ctx, req)
-}
-
-func (i *AuthInterceptor) UnaryServerInterceptor(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-	log.Printf("Received request on method: %s", info.FullMethod)
-	resp, err := handler(ctx, req)
-	if err != nil {
-		log.Printf("Error handling request on method: %s, error: %v", info.FullMethod, err)
-		return nil, err
-	}
-	log.Printf("Sending response from method: %s", info.FullMethod)
-	return resp, nil
 }
