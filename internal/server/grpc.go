@@ -13,25 +13,25 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-// NewGRPCServer creates a new grpc server
+// NewGRPCServer initializes and returns a gRPC server
 func NewGRPCServer(cfg *config.Config) *grpc.Server {
-	// Create a new grpc server
-	server := getGrpcServer(cfg)
+	// Create a new gRPC server
+	server := NewGrpcServer(cfg)
 
-	// Register the service with the server
+	// Register all gRPC services
 	deployment.RegisterDeploymentServiceServer(server, &controller.DeploymentServer{})
 	activity.RegisterActivityServiceServer(server, &controller.ActivityServer{})
 	health.RegisterHealthServiceServer(server, &controller.HealthServer{})
 
-	// Register reflection service on gRPC server.
+	// Enable gRPC server reflection
 	reflection.Register(server)
 
-	// Return the grpc server
+	// Return the gRPC server
 	return server
 }
 
-// getGrpcServer creates a new grpc server
-func getGrpcServer(cfg *config.Config) *grpc.Server {
+// NewGrpcServer creates a new grpc server
+func NewGrpcServer(cfg *config.Config) *grpc.Server {
 	if cfg.Server.Mode != "OIDC" {
 		return grpc.NewServer()
 	}
