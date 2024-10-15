@@ -4,6 +4,8 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"os"
+
 	"github.com/rs/zerolog/log"
 	"github.com/terrapi-solution/controller/controller"
 	"github.com/terrapi-solution/controller/internal/config"
@@ -12,7 +14,6 @@ import (
 	"github.com/terrapi-solution/protocol/health"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"os"
 
 	"google.golang.org/grpc/reflection"
 )
