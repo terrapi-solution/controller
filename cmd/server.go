@@ -69,13 +69,17 @@ func init() {
 	viper.SetDefault("server.mode", defaultServerMode)
 	_ = viper.BindPFlag("server.mode", serverCmd.PersistentFlags().Lookup("server-mode"))
 
-	serverCmd.PersistentFlags().String("server-cert", defaultServerCert, "Path to SSL certificate file for secure connections")
-	viper.SetDefault("server.cert", defaultServerCert)
-	_ = viper.BindPFlag("server.cert", serverCmd.PersistentFlags().Lookup("server-cert"))
+	serverCmd.PersistentFlags().String("server-tls-cert", defaultServerCert, "Path to SSL certificate file for secure connections")
+	viper.SetDefault("server.certificates.cert", defaultServerCert)
+	_ = viper.BindPFlag("server.certificates.cert", serverCmd.PersistentFlags().Lookup("server-tls-cert"))
 
-	serverCmd.PersistentFlags().String("server-key", defaultServerKey, "Path to SSL key file for secure connections")
-	viper.SetDefault("server.key", defaultServerKey)
-	_ = viper.BindPFlag("server.key", serverCmd.PersistentFlags().Lookup("server-key"))
+	serverCmd.PersistentFlags().String("server-tls-key", defaultServerKey, "Path to SSL key file for secure connections")
+	viper.SetDefault("server.certificates.key", defaultServerKey)
+	_ = viper.BindPFlag("server.certificates.key", serverCmd.PersistentFlags().Lookup("server-tls-key"))
+
+	serverCmd.PersistentFlags().String("server-tls-ca", defaultServerKey, "Path to SSL CA file for secure connections")
+	viper.SetDefault("server.certificates.ca", defaultServerKey)
+	_ = viper.BindPFlag("server.certificates.ca", serverCmd.PersistentFlags().Lookup("server-tls-ca"))
 
 	// Datastore configuration
 	serverCmd.PersistentFlags().String("datastore-host", defaultDatastoreHost, "Host address of the datastore")

@@ -5,11 +5,16 @@ var globalConfig *Config
 
 // Server defines the server configuration.
 type Server struct {
-	Host string `mapstructure:"host"`
-	Port int    `mapstructure:"port"`
-	Mode string `mapstructure:"mode"`
-	Cert string `mapstructure:"cert"`
-	Key  string `mapstructure:"key"`
+	Host         string       `mapstructure:"host"`
+	Port         int          `mapstructure:"port"`
+	Certificates Certificates `mapstructure:"tls"`
+}
+
+// Certificates defines the server credential configuration.
+type Certificates struct {
+	CertFile string `mapstructure:"cert"`
+	KeyFile  string `mapstructure:"key"`
+	CaFile   string `mapstructure:"ca"`
 }
 
 // Datastore defines the database configuration.
@@ -36,14 +41,8 @@ type Logs struct {
 	Color  bool   `mapstructure:"color"`
 }
 
-// Auth defines the OpenID Connect configuration.
-type Auth struct {
-	Authority string `mapstructure:"authority"`
-}
-
 // Config defines the general configuration.
 type Config struct {
-	Auth      Auth      `mapstructure:"auth"`
 	Datastore Datastore `mapstructure:"datastore"`
 	Logs      Logs      `mapstructure:"log"`
 	Metric    Metric    `mapstructure:"metric"`
