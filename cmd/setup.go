@@ -53,7 +53,7 @@ func setupConfig() {
 		viper.SetConfigName("controller")
 		viper.AddConfigPath("/etc/terrapi")
 		viper.AddConfigPath("$HOME/.terrapi")
-		viper.AddConfigPath("./terrapi")
+		viper.AddConfigPath("./config")
 	}
 
 	viper.SetEnvPrefix("terrapi")
