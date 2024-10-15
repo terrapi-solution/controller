@@ -20,6 +20,8 @@
         "docker"
       ],
       "matchUpdateTypes": [
+        "minor",
+        "patch",
         "pin",
         "pinDigest",
         "digest"
