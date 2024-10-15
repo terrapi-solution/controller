@@ -9,12 +9,12 @@ type ActivityServer struct {
 	rpc.ActivityServiceServer
 }
 
-func (s *ActivityServer) ListActivity(ctx context.Context, req *rpc.ListActivityRequest) (*rpc.Activities, error) {
+func (s *ActivityServer) ListActivity(ctx context.Context, req *rpc.ListRequest) (*rpc.Activities, error) {
 	activities := &rpc.Activities{}
 	return activities, nil
 }
 
-func (s *ActivityServer) InsertActivity(ctx context.Context, req *rpc.InsertActivityRequest) (*rpc.InsertActivityResponse, error) {
-	response := &rpc.InsertActivityResponse{}
+func (s *ActivityServer) InsertActivity(ctx context.Context, req *rpc.InsertRequest) (*rpc.InsertResponse, error) {
+	response := &rpc.InsertResponse{}
 	return response, nil
 }

@@ -9,9 +9,9 @@ type DeploymentServer struct {
 	rpc.DeploymentServiceServer
 }
 
-func (s *DeploymentServer) GetDeployment(ctx context.Context, req *rpc.RetrieveDeploymentRequest) (*rpc.Deployment, error) {
+func (s *DeploymentServer) GetDeployment(ctx context.Context, req *rpc.RetrieveRequest) (*rpc.Deployment, error) {
 	deployment := &rpc.Deployment{
-		Module: &rpc.DeploymentModule{},
+		Module: &rpc.Module{},
 	}
 
 	return deployment, nil
