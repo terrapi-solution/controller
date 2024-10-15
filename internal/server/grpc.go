@@ -38,7 +38,7 @@ func NewGRPCServer(cfg *config.Config) *grpc.Server {
 func newGrpcServer(cfg *config.Config) *grpc.Server {
 	// Load the TLS certificate
 	tlsConfig, err := loadTlSConfig(
-		cfg.Server.Certificates.CaFile,
+		cfg.Server.Certificates.CertFile,
 		cfg.Server.Certificates.KeyFile,
 		cfg.Server.Certificates.CaFile)
 	if err != nil {

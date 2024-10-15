@@ -7,7 +7,7 @@ var globalConfig *Config
 type Server struct {
 	Host         string       `mapstructure:"host"`
 	Port         int          `mapstructure:"port"`
-	Certificates Certificates `mapstructure:"tls"`
+	Certificates Certificates `mapstructure:"certificates"`
 }
 
 // Certificates defines the server credential configuration.
