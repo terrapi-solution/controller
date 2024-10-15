@@ -37,7 +37,7 @@ func NewGRPCServer(cfg *config.Config) *grpc.Server {
 // NewGrpcServer creates a new grpc server
 func newGrpcServer(cfg *config.Config) *grpc.Server {
 	// Load the TLS certificate
-	tlsConfig, err := loadTlSConfig(
+	tlsConfig, err := loadTLSConfig(
 		cfg.Server.Certificates.CertFile,
 		cfg.Server.Certificates.KeyFile,
 		cfg.Server.Certificates.CaFile)
@@ -50,7 +50,7 @@ func newGrpcServer(cfg *config.Config) *grpc.Server {
 }
 
 // loadTlSConfig loads the TLS configuration
-func loadTlSConfig(certFile, keyFile, caFile string) (credentials.TransportCredentials, error) {
+func loadTLSConfig(certFile, keyFile, caFile string) (credentials.TransportCredentials, error) {
 	certificate, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load server certification: %w", err)
@@ -61,15 +61,15 @@ func loadTlSConfig(certFile, keyFile, caFile string) (credentials.TransportCrede
 		return nil, fmt.Errorf("faild to read CA certificate: %w", err)
 	}
 
-	capool := x509.NewCertPool()
-	if !capool.AppendCertsFromPEM(data) {
+	pool := x509.NewCertPool()
+	if !pool.AppendCertsFromPEM(data) {
 		return nil, fmt.Errorf("unable to append the CA certificate to CA pool")
 	}
 
 	tlsConfig := &tls.Config{
 		ClientAuth:   tls.RequireAndVerifyClientCert,
 		Certificates: []tls.Certificate{certificate},
-		ClientCAs:    capool,
+		ClientCAs:    pool,
 	}
 	return credentials.NewTLS(tlsConfig), nil
 }
