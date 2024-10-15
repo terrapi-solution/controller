@@ -65,10 +65,6 @@ func init() {
 	viper.SetDefault("server.port", defaultServerPort)
 	_ = viper.BindPFlag("server.port", serverCmd.PersistentFlags().Lookup("server-port"))
 
-	serverCmd.PersistentFlags().String("server-mode", defaultServerMode, "Server mode (e.g., production, development)")
-	viper.SetDefault("server.mode", defaultServerMode)
-	_ = viper.BindPFlag("server.mode", serverCmd.PersistentFlags().Lookup("server-mode"))
-
 	serverCmd.PersistentFlags().String("server-tls-cert", defaultServerCert, "Path to SSL certificate file for secure connections")
 	viper.SetDefault("server.certificates.cert", defaultServerCert)
 	_ = viper.BindPFlag("server.certificates.cert", serverCmd.PersistentFlags().Lookup("server-tls-cert"))
