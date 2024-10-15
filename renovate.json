@@ -1,6 +1,58 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:base",
+    ":semanticCommits",
+    ":semanticCommitType(deps)"
+  ],
+  "dockerfile": {
+    "pinDigests": true
+  },
+  "gomod": {
+    "postUpdateOptions": [
+      "gomodUpdateImportPaths",
+      "gomodTidy"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "Automerge docker digest updates",
+      "groupName": "docker digests",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "pin",
+        "pinDigest",
+        "digest"
+      ],
+      "pinDigests": true,
+      "automerge": true
+    },
+    {
+      "description": "Automerge untagged golang libs",
+      "groupName": "untagged libraries",
+      "matchPackageNames": [
+        "golang.org/x/crypto",
+        "golang.org/x/net"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "Automerge protocol golang libs",
+      "groupName": "internal libraries",
+      "matchPackageNames": [
+        "github.com/terrapi-solution/protocol"
+      ],
+      "automerge": true
+    },
+    {
+      "description": "Build tool version upgrades",
+      "groupName": "build tools",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "automerge": true
+    }
   ]
 }
