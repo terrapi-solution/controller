@@ -9,10 +9,26 @@ type DeploymentServer struct {
 	rpc.DeploymentServiceServer
 }
 
-func (s *DeploymentServer) GetDeployment(ctx context.Context, req *rpc.RetrieveRequest) (*rpc.Deployment, error) {
-	deployment := &rpc.Deployment{
-		Module: &rpc.Module{},
+func (s *DeploymentServer) Get(ctx context.Context, req *rpc.RetrieveRequest) (*rpc.Deployment, error) {
+	deployment := rpc.Deployment{
+		Module: &rpc.Module{
+			Name:     "hello-world",
+			Address:  "https://github.com/kikitux/terraform-null-helloworld.git",
+			Path:     "",
+			Username: "",
+			Password: "",
+		},
+		Request: &rpc.Request{
+			Action: rpc.Request_init,
+			Variables: []*rpc.RequestVariable{
+				{
+					Name:   "name",
+					Value:  "dd",
+					Secret: true,
+				},
+			},
+		},
 	}
 
-	return deployment, nil
+	return &deployment, nil
 }
