@@ -4,8 +4,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"os"
-
 	"github.com/rs/zerolog/log"
 	"github.com/terrapi-solution/controller/controller"
 	"github.com/terrapi-solution/controller/internal/config"
@@ -14,9 +12,22 @@ import (
 	"github.com/terrapi-solution/protocol/health"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"k8s.io/utils/env"
+	"os"
 
 	"google.golang.org/grpc/reflection"
 )
+
+var MaxGRPCMessageSize int
+
+func init() {
+	var err error
+	MaxGRPCMessageSize, err = env.GetInt("GRPC_MESSAGE_SIZE", 100*1024*1024)
+	if err != nil {
+		log.Fatal().Err(err).
+			Msg("GRPC_MESSAGE_SIZE environment variable must be set as an integer")
+	}
+}
 
 // NewGRPCServer initializes and returns a gRPC server
 func NewGRPCServer(cfg *config.Config) *grpc.Server {
@@ -37,17 +48,18 @@ func NewGRPCServer(cfg *config.Config) *grpc.Server {
 
 // NewGrpcServer creates a new grpc server
 func newGrpcServer(cfg *config.Config) *grpc.Server {
-	// Load the TLS certificate
-	tlsConfig, err := loadTLSConfig(
-		cfg.Server.Certificates.CertFile,
-		cfg.Server.Certificates.KeyFile,
-		cfg.Server.Certificates.CaFile)
-	if err != nil {
-		log.Panic().Err(err).Msg("failed to load TLS configuration")
+	if cfg.Server.Certificates.Status {
+		tlsConfig, err := loadTLSConfig(
+			cfg.Server.Certificates.CertFile,
+			cfg.Server.Certificates.KeyFile,
+			cfg.Server.Certificates.CaFile)
+		if err != nil {
+			log.Panic().Err(err).Msg("failed to load TLS configuration")
+		}
+		return grpc.NewServer(grpc.Creds(tlsConfig))
+	} else {
+		return grpc.NewServer()
 	}
-
-	// Create a new grpc server with the interceptor
-	return grpc.NewServer(grpc.Creds(tlsConfig))
 }
 
 // loadTlSConfig loads the TLS configuration

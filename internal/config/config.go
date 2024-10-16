@@ -12,6 +12,7 @@ type Server struct {
 
 // Certificates defines the server credential configuration.
 type Certificates struct {
+	Status   bool   `mapstructure:"status"`
 	CertFile string `mapstructure:"cert"`
 	KeyFile  string `mapstructure:"key"`
 	CaFile   string `mapstructure:"ca"`
@@ -49,7 +50,7 @@ type Config struct {
 	Server    Server    `mapstructure:"server"`
 }
 
-// Load initializes a default configuration struct.
+// Load initializes a config configuration struct.
 func Load() *Config {
 	return &Config{}
 }

@@ -24,11 +24,11 @@ var (
 	}
 
 	// Server configuration
-	defaultServerHost = "0.0.0.0"
-	defaultServerPort = 8080
-	defaultServerMode = ""
-	defaultServerCert = ""
-	defaultServerKey  = ""
+	defaultServerHost      = "0.0.0.0"
+	defaultServerPort      = 8080
+	defaultServerSslStatus = false
+	defaultServerSslCert   = ""
+	defaultServerSslKey    = ""
 
 	// Datastore configuration
 	defaultDatastoreHost     = "localhost"
@@ -65,16 +65,20 @@ func init() {
 	viper.SetDefault("server.port", defaultServerPort)
 	_ = viper.BindPFlag("server.port", serverCmd.PersistentFlags().Lookup("server-port"))
 
-	serverCmd.PersistentFlags().String("server-tls-cert", defaultServerCert, "Path to SSL certificate file for secure connections")
-	viper.SetDefault("server.certificates.cert", defaultServerCert)
+	serverCmd.PersistentFlags().Bool("server-tls-status", defaultServerSslStatus, "Enable or disable TLS for secure connections")
+	viper.SetDefault("server.certificates.status", defaultServerSslStatus)
+	_ = viper.BindPFlag("server.certificates.status", serverCmd.PersistentFlags().Lookup("server-tls-status"))
+
+	serverCmd.PersistentFlags().String("server-tls-cert", defaultServerSslCert, "Path to SSL certificate file for secure connections")
+	viper.SetDefault("server.certificates.cert", defaultServerSslCert)
 	_ = viper.BindPFlag("server.certificates.cert", serverCmd.PersistentFlags().Lookup("server-tls-cert"))
 
-	serverCmd.PersistentFlags().String("server-tls-key", defaultServerKey, "Path to SSL key file for secure connections")
-	viper.SetDefault("server.certificates.key", defaultServerKey)
+	serverCmd.PersistentFlags().String("server-tls-key", defaultServerSslKey, "Path to SSL key file for secure connections")
+	viper.SetDefault("server.certificates.key", defaultServerSslKey)
 	_ = viper.BindPFlag("server.certificates.key", serverCmd.PersistentFlags().Lookup("server-tls-key"))
 
-	serverCmd.PersistentFlags().String("server-tls-ca", defaultServerKey, "Path to SSL CA file for secure connections")
-	viper.SetDefault("server.certificates.ca", defaultServerKey)
+	serverCmd.PersistentFlags().String("server-tls-ca", defaultServerSslKey, "Path to SSL CA file for secure connections")
+	viper.SetDefault("server.certificates.ca", defaultServerSslKey)
 	_ = viper.BindPFlag("server.certificates.ca", serverCmd.PersistentFlags().Lookup("server-tls-ca"))
 
 	// Datastore configuration
