@@ -31,19 +31,9 @@ jobs:
         id: release
         run: make release
 
-      - name: Show binaries
+      - name: Show artifacts
         id: show
         run: ls -lsa dist/
-
-      - name: Sign release
-        id: gpgsign
-        uses: actionhippie/gpgsign@v1
-        with:
-          private_key: ${{ secrets.GNUPG_KEY }}
-          passphrase: ${{ secrets.GNUPG_PASSWORD }}
-          detach_sign: true
-          files: dist/*
-          excludes: dist/*.sha256
 
       - name: Build changes
         id: changelog
