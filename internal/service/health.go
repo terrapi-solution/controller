@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/rs/zerolog/log"
 	"github.com/terrapi-solution/controller/internal/config"
-	rpc "github.com/terrapi-solution/protocol/health"
+	rpc "github.com/terrapi-solution/protocol/health/v1"
 	"net"
 	"strconv"
 	"time"
@@ -20,19 +20,19 @@ func NewHealthService() *HealthService {
 }
 
 // CheckController checks the health of the controller service.
-func (s *HealthService) CheckController() rpc.HealthCheck_ServingStatus {
+func (s *HealthService) CheckController() rpc.CheckResponse_ServingStatus {
 	// Always return SERVING for the controller service
 	// Because I'm the controller—obviously, everything revolves around me!
-	return rpc.HealthCheck_SERVING
+	return rpc.CheckResponse_SERVING_STATUS_SERVING
 }
 
 // CheckDatabase checks the health of the database service.
-func (s *HealthService) CheckDatabase() rpc.HealthCheck_ServingStatus {
+func (s *HealthService) CheckDatabase() rpc.CheckResponse_ServingStatus {
 	// Check the database service using a TCP health check
 	if s.checkTCP(s.cfg.Datastore.Host, s.cfg.Datastore.Port, 5*time.Second) {
-		return rpc.HealthCheck_SERVING
+		return rpc.CheckResponse_SERVING_STATUS_SERVING
 	} else {
-		return rpc.HealthCheck_NOT_SERVING
+		return rpc.CheckResponse_SERVING_STATUS_NOT_SERVING
 	}
 }
 

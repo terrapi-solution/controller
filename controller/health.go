@@ -3,7 +3,7 @@ package controller
 import (
 	"context"
 	"github.com/terrapi-solution/controller/internal/service"
-	rpc "github.com/terrapi-solution/protocol/health"
+	rpc "github.com/terrapi-solution/protocol/health/v1"
 	"strings"
 )
 
@@ -14,12 +14,12 @@ type HealthServer struct {
 }
 
 // Check performs a health check for the specified service.
-func (s *HealthServer) Check(ctx context.Context, req *rpc.CheckRequest) (*rpc.HealthCheck, error) {
+func (s *HealthServer) Check(ctx context.Context, req *rpc.CheckRequest) (*rpc.CheckResponse, error) {
 	// Create a new health service
 	h := service.NewHealthService()
 
 	// Map the service name to the corresponding health check function
-	statusMap := map[string]func() rpc.HealthCheck_ServingStatus{
+	statusMap := map[string]func() rpc.CheckResponse_ServingStatus{
 		"controller": h.CheckController,
 		"database":   h.CheckDatabase,
 	}
@@ -27,27 +27,27 @@ func (s *HealthServer) Check(ctx context.Context, req *rpc.CheckRequest) (*rpc.H
 	checkFunc, exists := statusMap[req.Service]
 	if !exists {
 		// Return unknown status if the service is not recognized
-		return &rpc.HealthCheck{
+		return &rpc.CheckResponse{
 			Name:   strings.ToLower(req.Service),
-			Status: rpc.HealthCheck_UNKNOWN,
+			Status: rpc.CheckResponse_SERVING_STATUS_SERVICE_UNKNOWN,
 		}, nil
 	}
 
-	return &rpc.HealthCheck{
+	return &rpc.CheckResponse{
 		Name:   strings.ToLower(req.Service),
 		Status: checkFunc(),
 	}, nil
 }
 
 // CheckAll performs a health check for all services.
-func (s *HealthServer) CheckAll(ctx context.Context, req *rpc.CheckAllRequest) (*rpc.HealthChecks, error) {
+func (s *HealthServer) CheckAll(ctx context.Context, req *rpc.CheckAllRequest) (*rpc.CheckAllResponse, error) {
 	// Create a new health service
 	h := service.NewHealthService()
 
 	// Create a slice of health checks
-	data := rpc.HealthChecks{}
-	data.Results = append(data.Results, &rpc.HealthCheck{Name: "controller", Status: h.CheckController()})
-	data.Results = append(data.Results, &rpc.HealthCheck{Name: "database", Status: h.CheckDatabase()})
+	data := rpc.CheckAllResponse{}
+	data.Results = append(data.Results, &rpc.CheckResponse{Name: "controller", Status: h.CheckController()})
+	data.Results = append(data.Results, &rpc.CheckResponse{Name: "database", Status: h.CheckDatabase()})
 
 	// Return the health checks
 	return &data, nil

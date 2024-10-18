@@ -2,15 +2,15 @@ package controller
 
 import (
 	"context"
-	rpc "github.com/terrapi-solution/protocol/deployment"
+	rpc "github.com/terrapi-solution/protocol/deployment/v1"
 )
 
 type DeploymentServer struct {
 	rpc.DeploymentServiceServer
 }
 
-func (s *DeploymentServer) Get(ctx context.Context, req *rpc.RetrieveRequest) (*rpc.Deployment, error) {
-	deployment := rpc.Deployment{
+func (s *DeploymentServer) Get(ctx context.Context, req *rpc.GetRequest) (*rpc.GetResponse, error) {
+	deployment := rpc.GetResponse{
 		Module: &rpc.Module{
 			Name:     "hello-world",
 			Address:  "https://github.com/kikitux/terraform-null-helloworld.git",
@@ -19,7 +19,7 @@ func (s *DeploymentServer) Get(ctx context.Context, req *rpc.RetrieveRequest) (*
 			Password: "",
 		},
 		Request: &rpc.Request{
-			Action: rpc.Request_init,
+			Action: rpc.Action_ACTION_INIT,
 			Variables: []*rpc.RequestVariable{
 				{
 					Name:   "name",
