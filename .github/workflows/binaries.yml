@@ -53,7 +53,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: ncipollo/release-action@v1
         with:
-          token: ${{ secrets.GITLAB_SECRET }}
+          token: ${{ secrets.GIT_SECRET }}
           body: ${{ steps.changelog.outputs.generated }}
           artifacts: dist/*
 ...
