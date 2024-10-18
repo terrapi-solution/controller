@@ -31,6 +31,10 @@ jobs:
         id: release
         run: make release
 
+      - name: Show binaries
+        id: show
+        run: ls -lsa dist/
+
       - name: Sign release
         id: gpgsign
         uses: actionhippie/gpgsign@v1
