@@ -55,8 +55,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITLAB_SECRET }}
           images: |
-            terrapi-solution/controller
-            ghcr.io/terrapisolution/controller
+            terrapisolution/controller
+            ghcr.io/terrapi-solution/controller
           labels: |
             org.opencontainers.image.vendor=TerrAPI
             maintainer=Thomas Boerger <contact@thomas-illiet.fr>
