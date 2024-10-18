@@ -15,16 +15,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform: linux/386
-            goos: linux
-            goarch: 386
           - platform: linux/amd64
             goos: linux
             goarch: amd64
           - platform: linux/arm64
             goos: linux
             goarch: arm64
-    
+          - platform: linux/arm/6
+            goos: linux
+            goarch: arm
+            goarm: 6
+
     steps:
       - name: Checkout source
         id: source
