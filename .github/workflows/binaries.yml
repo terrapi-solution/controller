@@ -35,13 +35,6 @@ jobs:
         id: show
         run: ls -lsa dist/
 
-      - name: Build changes
-        id: changelog
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: actionhippie/calens@v1
-        with:
-          version: ${{ github.ref }}
-
       - name: Upload release
         id: upload
         if: startsWith(github.ref, 'refs/tags/')
