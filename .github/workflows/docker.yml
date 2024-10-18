@@ -135,7 +135,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v6
-          template: terrapisolution/controller:VERSION-OS-ARCH
+          template: terrapisolution/controller:VERSION
           target: ${{ steps.hubTags.outputs.tags }}
           ignore_missing: true
 
@@ -158,7 +158,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GIT_TOKEN }}
           platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v6
-          template: ghcr.io/terrapi-solution/controller:VERSION-OS-ARCH
+          template: ghcr.io/terrapi-solution/controller:VERSION
           target: ${{ steps.ghcrTags.outputs.tags }}
           ignore_missing: true
 
