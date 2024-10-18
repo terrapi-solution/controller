@@ -175,3 +175,7 @@ $(DIST)/$(EXECUTABLE)-$(OUTPUT)-windows-4.0-386.exe:
 
 $(DIST)/$(EXECUTABLE)-$(OUTPUT)-windows-4.0-amd64.exe:
 	GOOS=windows GOARCH=amd64 $(GOBUILD) -v -tags '$(TAGS)' -ldflags '$(LDFLAGS)' -o $@ ./
+
+.PHONY: release-checksum
+release-checksum:
+	cd $(DIST); $(foreach file,$(wildcard $(DIST)/$(EXECUTABLE)-*),sha256sum $(notdir $(file)) > $(notdir $(file)).sha256;)
