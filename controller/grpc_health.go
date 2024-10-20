@@ -7,14 +7,14 @@ import (
 	"strings"
 )
 
-// HealthServer implements the HealthServiceServer interface.
-type HealthServer struct {
+// GrpcHealthServer implements the HealthServiceServer interface.
+type GrpcHealthServer struct {
 	rpc.HealthServiceServer
 	service service.HealthService
 }
 
 // Check performs a health check for the specified service.
-func (s *HealthServer) Check(ctx context.Context, req *rpc.CheckRequest) (*rpc.CheckResponse, error) {
+func (s *GrpcHealthServer) Check(ctx context.Context, req *rpc.CheckRequest) (*rpc.CheckResponse, error) {
 	// Create a new health service
 	h := service.NewHealthService()
 
@@ -40,7 +40,7 @@ func (s *HealthServer) Check(ctx context.Context, req *rpc.CheckRequest) (*rpc.C
 }
 
 // CheckAll performs a health check for all services.
-func (s *HealthServer) CheckAll(ctx context.Context, req *rpc.CheckAllRequest) (*rpc.CheckAllResponse, error) {
+func (s *GrpcHealthServer) CheckAll(ctx context.Context, req *rpc.CheckAllRequest) (*rpc.CheckAllResponse, error) {
 	// Create a new health service
 	h := service.NewHealthService()
 
