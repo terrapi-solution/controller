@@ -15,19 +15,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform: linux/386
-            goos: linux
-            goarch: 386
           - platform: linux/amd64
             goos: linux
             goarch: amd64
           - platform: linux/arm64
             goos: linux
             goarch: arm64
-          - platform: linux/arm/6
-            goos: linux
-            goarch: arm
-            goarm: 6
 
     steps:
       - name: Checkout source
@@ -60,10 +53,10 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GIT_TOKEN }}
           images: |
-            terrapi-solution/controller
-            ghcr.io/terrapisolution/controller
+            terrapisolution/controller
+            ghcr.io/terrapi-solution/controller
           labels: |
             org.opencontainers.image.vendor=TerrAPI
             maintainer=Thomas Boerger <contact@thomas-illiet.fr>
@@ -73,8 +66,6 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-          flavor: |
-            suffix=-${{ matrix.goos }}-${{ matrix.goarch }}
 
       - name: Setup qemu
         id: qemu
@@ -98,8 +89,8 @@ jobs:
         if: github.event_name != 'pull_request'
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.GIT_USERNAME }}
+          password: ${{ secrets.GIT_TOKEN }}
 
       - name: Build image
         id: publish
@@ -127,7 +118,7 @@ jobs:
         id: hubTags
         uses: docker/metadata-action@v5
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GIT_TOKEN }}
           images: terrapisolution/controller
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
@@ -142,7 +133,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v6
-          template: terrapisolution/controller:VERSION-OS-ARCH
+          template: terrapisolution/controller:VERSION
           target: ${{ steps.hubTags.outputs.tags }}
           ignore_missing: true
 
@@ -150,7 +141,7 @@ jobs:
         id: ghcrTags
         uses: docker/metadata-action@v5
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GIT_TOKEN }}
           images: ghcr.io/terrapi-solution/controller
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
@@ -163,9 +154,9 @@ jobs:
         uses: actionhippie/manifest@v1
         with:
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GIT_TOKEN }}
           platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v6
-          template: ghcr.io/terrapi-solution/controller:VERSION-OS-ARCH
+          template: ghcr.io/terrapi-solution/controller:VERSION
           target: ${{ steps.ghcrTags.outputs.tags }}
           ignore_missing: true
 
