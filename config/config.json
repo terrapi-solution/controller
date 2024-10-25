@@ -1,0 +1,40 @@
+{
+  "Servers": {
+    "Grpc": {
+      "Host": "localhost",
+      "Port": 50051,
+      "Certificate": {
+        "Status": true,
+        "CertFile": "config/server.crt",
+        "KeyFile": "config/server.key",
+        "CaFile": "config/ca.crt"
+      }
+    },
+    "Metric": {
+      "Host": "localhost",
+      "Port": 9090,
+      "Token": "your-metric-token",
+      "Certificate": {
+        "Status": true,
+        "CertFile": "config/server.crt",
+        "KeyFile": "config/server.key"
+      }
+    },
+    "Rest": {
+      "Host": "localhost",
+      "Port": 8080,
+      "Certificate": {
+        "Status": true,
+        "CertFile": "config/server.crt",
+        "KeyFile": "config/server.key"
+      }
+    }
+  },
+  "Datastore": {
+    "Host": "localhost",
+    "Port": 5432,
+    "Database": "your-database",
+    "Username": "your-username",
+    "Password": "your-password"
+  }
+}
