@@ -12,7 +12,10 @@
 *.test
 
 # Configuration files
-config/
+config/*.crt
+config/*.key
+config/*.srl
+config/*.csr
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
