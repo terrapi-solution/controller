@@ -1,12 +1,14 @@
-package controller
+package grpc
 
 import (
 	"context"
+	"github.com/terrapi-solution/controller/internal/core"
 	rpc "github.com/terrapi-solution/protocol/deployment/v1"
 )
 
 type DeploymentServer struct {
 	rpc.DeploymentServiceServer
+	Services *core.Core
 }
 
 func (s *DeploymentServer) Get(ctx context.Context, req *rpc.GetRequest) (*rpc.GetResponse, error) {

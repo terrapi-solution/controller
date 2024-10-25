@@ -1,28 +1,13 @@
-package server
+package metric
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/terrapi-solution/controller/internal/config"
 	"net/http"
 )
 
-// Metrics initializes the routing of metrics and health.
-func Metrics(cfg *config.Config) *gin.Engine {
-	// Set the router to release mode
-	gin.SetMode(gin.ReleaseMode)
-
-	// Creates a router without any middleware
-	r := gin.New()
-
-	// endpoint for prometheus metrics
-	r.GET("/metrics", metricHandler(cfg.Metric.Token))
-
-	return r
-}
-
 // Handler initializes the prometheus middleware.
-func metricHandler(token string) gin.HandlerFunc {
+func (s *MetricServer) metricHandler(token string) gin.HandlerFunc {
 	h := promhttp.Handler()
 
 	return func(c *gin.Context) {

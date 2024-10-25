@@ -1,66 +1,86 @@
 package config
 
-// Config defines the general configuration
-var globalConfig *Config
+import (
+	"errors"
+	"github.com/rs/zerolog/log"
+	"github.com/spf13/viper"
+	"os"
+	"strings"
+	"sync"
+)
 
-// Server defines the server configuration.
-type Server struct {
-	Host         string       `mapstructure:"host"`
-	Port         int          `mapstructure:"port"`
-	Certificates Certificates `mapstructure:"certificates"`
-}
+var (
+	globalConfig *Config
+	once         sync.Once
+)
 
-// Certificates defines the server credential configuration.
-type Certificates struct {
-	Status   bool   `mapstructure:"status"`
-	CertFile string `mapstructure:"cert"`
-	KeyFile  string `mapstructure:"key"`
-	CaFile   string `mapstructure:"ca"`
-}
+// GetInstance returns the configuration.
+func GetInstance() *Config {
+	// Make sure the configuration is only loaded once
+	once.Do(func() {
+		globalConfig = getConfig()
+	})
 
-// Datastore defines the database configuration.
-type Datastore struct {
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	Database string `mapstructure:"database"`
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
-}
-
-// Metric defines the metrics server configuration.
-type Metric struct {
-	Status bool   `mapstructure:"status"`
-	Host   string `mapstructure:"host"`
-	Port   int    `mapstructure:"port"`
-	Token  string `mapstructure:"token"`
-}
-
-// Logs defines the level and color for log configuration.
-type Logs struct {
-	Level  string `mapstructure:"level"`
-	Pretty bool   `mapstructure:"pretty"`
-	Color  bool   `mapstructure:"color"`
-}
-
-// Config defines the general configuration.
-type Config struct {
-	Datastore Datastore `mapstructure:"datastore"`
-	Logs      Logs      `mapstructure:"log"`
-	Metric    Metric    `mapstructure:"metric"`
-	Server    Server    `mapstructure:"server"`
-}
-
-// Load initializes a config configuration struct.
-func Load() *Config {
-	return &Config{}
-}
-
-// Get returns the global configuration.
-func Get() *Config {
+	// Return the configuration
 	return globalConfig
 }
 
-// Set returns the global configuration.
-func Set(config *Config) {
-	globalConfig = config
+// getConfig gets the configuration from the config file.
+func getConfig() *Config {
+	cfg := &Config{}
+
+	// Sets name for the config file.
+	viper.SetConfigName("controller")
+
+	// Adds a path for Viper to search for the config file in.
+	viper.AddConfigPath("/etc/terrapi")
+	viper.AddConfigPath("$HOME/.terrapi")
+	viper.AddConfigPath("./config")
+
+	// Set the prefix for environment variables
+	viper.SetEnvPrefix("TERRAPI")
+
+	// Replaces the "." in the environment variables with "_"
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	// Automatically read in environment variables that match
+	viper.AutomaticEnv()
+
+	// Read the configuration file
+	if err := readConfig(); err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to read config file")
+	}
+
+	// Unmarshal the configuration file into the config struct
+	if err := viper.Unmarshal(cfg); err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to parse config file")
+	}
+
+	// Return the configuration
+	return cfg
+}
+
+// readConfig reads the configuration file.
+func readConfig() error {
+	err := viper.ReadInConfig()
+
+	if err == nil {
+		return nil
+	}
+
+	var configFileNotFoundError viper.ConfigFileNotFoundError
+	if errors.As(err, &configFileNotFoundError) {
+		return nil
+	}
+
+	var pathError *os.PathError
+	if errors.As(err, &pathError) {
+		return nil
+	}
+
+	return err
 }

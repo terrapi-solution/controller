@@ -13,9 +13,9 @@ type HealthService struct {
 	cfg *config.Config
 }
 
-func NewHealthService() *HealthService {
+func NewHealthService(cfg *config.Config) *HealthService {
 	return &HealthService{
-		cfg: config.Get(),
+		//cfg: config.Get(),
 	}
 }
 

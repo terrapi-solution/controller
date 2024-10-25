@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/terrapi-solution/controller/cmd"
-	"os"
+	"github.com/terrapi-solution/controller/internal/core"
+	"github.com/terrapi-solution/controller/internal/servers"
 )
 
 func main() {
-	if err := cmd.Run(); err != nil {
-		os.Exit(1)
-	}
+
+	coreSvc := core.GetInstance()
+	servers.StartServers(coreSvc)
 }
