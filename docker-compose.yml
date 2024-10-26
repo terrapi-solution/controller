@@ -5,9 +5,9 @@ services:
     image: postgres:13
     container_name: postgres
     environment:
-      POSTGRES_DB: your-database
-      POSTGRES_USER: your-username
-      POSTGRES_PASSWORD: your-password
+      POSTGRES_DB: terrapi
+      POSTGRES_USER: terrapi
+      POSTGRES_PASSWORD: MyPa33w0rd!
     ports:
       - "5432:5432"
     volumes:
