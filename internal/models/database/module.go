@@ -5,16 +5,16 @@ import (
 )
 
 type Module struct {
-	ID        uint `gorm:"primaryKey"`
-	Name      string
+	ID        uint         `gorm:"primaryKey"`
+	Name      string       `gorm:"uniqueIndex;not null"`
 	Source    ModuleSource `gorm:"foreignKey:ModuleID;references:ID"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time    `gorm:"autoCreateTime"`
+	UpdatedAt time.Time    `gorm:"autoUpdateTime"`
 }
 
 type ModuleSource struct {
 	ModuleID   uint
-	Repository string
-	Branch     string
-	Path       string
+	Repository string `gorm:"not null"`
+	Branch     string `gorm:"not null"`
+	Path       string `gorm:"not null"`
 }

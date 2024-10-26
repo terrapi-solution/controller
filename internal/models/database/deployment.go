@@ -10,13 +10,13 @@ type Deployment struct {
 	Module     Module                `gorm:"foreignKey:ModuleId;references:ID"`
 	Variables  *[]DeploymentVariable `gorm:"foreignKey:DeploymentID;references:ID"`
 	Activities *[]Activity           `gorm:"foreignKey:DeploymentID;references:ID"`
-	CreatedAt  time.Time
+	CreatedAt  time.Time             `gorm:"autoCreateTime"`
 }
 
 type DeploymentVariable struct {
 	DeploymentID int
-	Name         string
-	Value        string
+	Name         string `gorm:"not null"`
+	Value        string `gorm:"not null"`
 }
 
 type DeploymentStatus string
