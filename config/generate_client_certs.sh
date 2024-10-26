@@ -2,6 +2,7 @@
 
 # Set up variables
 CA_KEY="ca.key"
+CA_CERT="ca.crt"
 CLIENT_KEY="client.key"
 CLIENT_CSR="client.csr"
 CLIENT_CERT="client.crt"
