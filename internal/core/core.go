@@ -1,16 +1,16 @@
 package core
 
 import (
-	"database/sql"
 	"github.com/rs/zerolog/log"
 	"github.com/terrapi-solution/controller/internal/config"
+	"github.com/terrapi-solution/controller/internal/database"
 	"github.com/terrapi-solution/controller/internal/service"
 	"sync"
 )
 
 type Core struct {
 	Config      *config.Config
-	DB          *sql.DB
+	DB          *database.DatabaseConnection
 	Deployment  *service.Deployment
 	Activity    *service.Activity
 	HealthCheck *service.HealthService
@@ -45,6 +45,8 @@ func (c *Core) initializeConfiguration() {
 
 func (c *Core) initializeDatabase() {
 	log.Info().Msg("Initializing database service")
+	c.DB = database.GetDatabaseConnection(c.Config.Datastore)
+	c.DB.CreateModel()
 }
 
 func (c *Core) initializeDeployment() {
@@ -62,7 +64,6 @@ func (c *Core) Dispose() {
 	c.Deployment = nil
 
 	// Close the database connection
-	_ = c.DB.Close()
 	c.DB = nil
 
 	// Dispose the configuration

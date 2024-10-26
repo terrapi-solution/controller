@@ -2,10 +2,10 @@ package database
 
 import (
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"github.com/terrapi-solution/controller/internal/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
 	"sync"
 )
 
@@ -26,11 +26,11 @@ func GetDatabaseConnection(config config.Datastore) *DatabaseConnection {
 		)
 		conn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
-			log.Fatalf("Failed to connect to database: %v", err)
+			log.Fatal().Err(err).Msg("Failed to connect to database")
 		}
 
 		dbInstance = &DatabaseConnection{Conn: conn}
-		fmt.Println("Database connection established")
+		log.Info().Msg("Connection established")
 	})
 
 	return dbInstance
