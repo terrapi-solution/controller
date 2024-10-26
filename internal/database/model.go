@@ -11,7 +11,7 @@ func (s *DatabaseConnection) CreateModel() error {
 		&database.Module{},
 		&database.ModuleSource{},
 		&database.Deployment{},
-		//&database.DeploymentVariable{},
+		&database.DeploymentVariable{},
 		&database.Activity{},
 	}
 
