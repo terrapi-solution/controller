@@ -51,10 +51,12 @@ func (c *Core) initializeDatabase() {
 
 func (c *Core) initializeDeployment() {
 	log.Info().Msg("Initializing deployment service")
+	c.Deployment = service.NewDeploymentService(c.DB)
 }
 
 func (c *Core) initializeActivity() {
 	log.Info().Msg("Initializing activity service")
+	c.Activity = service.NewActivityService(c.DB)
 }
 
 func (c *Core) Dispose() {

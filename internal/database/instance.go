@@ -30,7 +30,6 @@ func GetDatabaseConnection(config config.Datastore) *DatabaseConnection {
 		}
 
 		dbInstance = &DatabaseConnection{Conn: conn}
-		log.Info().Msg("Connection established")
 	})
 
 	return dbInstance
