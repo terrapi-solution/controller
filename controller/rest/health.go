@@ -9,8 +9,6 @@ func NewHealthController() *HealthController {
 	return &HealthController{}
 }
 
-// @BasePath /api/v1
-
 // Get is used to delete a specific deployment.
 // @Summary ping example !
 // @Schemes

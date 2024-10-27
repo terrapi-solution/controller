@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/terrapi-solution/controller/internal/database"
-	model "github.com/terrapi-solution/controller/internal/models/database"
+	model "github.com/terrapi-solution/controller/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -52,24 +52,24 @@ func (a *Activity) Create(ctx context.Context, request ActivityRequest) (*model.
 
 func (a *Activity) List(ctx context.Context, deploymentId, page, pageSize int) ([]model.Activity, error) {
 	// Define the list of activities
-	var activities []model.Activity
+	var entities []model.Activity
 
 	// Get the database instance
 	conn := database.GetInstance()
 	if conn == nil {
-		return activities, errors.New("database instance is not initialized")
+		return entities, errors.New("database instance is not initialized")
 	}
 
 	// Get the list of activities
 
 	if err := conn.WithContext(ctx).
 		Scopes(database.Paginate(page, pageSize)).
-		Find(&activities, "deployment_id = ?", deploymentId).Error; err != nil {
-		return activities, err
+		Find(&entities, "deployment_id = ?", deploymentId).Error; err != nil {
+		return entities, err
 	}
 
 	// Return the list of activities
-	return activities, nil
+	return entities, nil
 }
 
 func (a *Activity) Delete(ctx context.Context, id uint) error {

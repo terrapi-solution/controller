@@ -10,17 +10,16 @@ import (
 	"strconv"
 )
 
-// @BasePath /v1
-
 type ActivityController struct {
 }
 
+// NewActivityController creates a new activity controller
 func NewActivityController() *ActivityController {
 	return &ActivityController{}
 }
 
-// Get is used to get activities for a specific deployment.
-// @Summary get activities for a specific deployment
+// List is used to list all deployments for a specific deployment.
+// @Summary List all deployments for a specific deployment
 // @Tags    📰 Activity
 // @Accept  json
 // @Produce json
@@ -31,7 +30,7 @@ func NewActivityController() *ActivityController {
 // @Failure 404 {object} HTTPError
 // @Failure 500 {object} HTTPError
 // @Router  /v1/activities/{deploymentId} [get]
-func (s *ActivityController) Get(ctx *gin.Context) {
+func (s *ActivityController) List(ctx *gin.Context) {
 	// Get the deployment identifier
 	deploymentID, err := strconv.Atoi(ctx.Param("deploymentId"))
 	if err != nil {

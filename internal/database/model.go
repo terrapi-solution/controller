@@ -2,17 +2,17 @@ package database
 
 import (
 	"github.com/rs/zerolog/log"
-	"github.com/terrapi-solution/controller/internal/models/database"
+	"github.com/terrapi-solution/controller/internal/models"
 )
 
 func CreateModel() {
 	// Define all database models
 	models := []interface{}{
-		&database.Module{},
-		&database.ModuleSource{},
-		&database.Deployment{},
-		&database.DeploymentVariable{},
-		&database.Activity{},
+		&models.Module{},
+		&models.ModuleSource{},
+		&models.Deployment{},
+		&models.DeploymentVariable{},
+		&models.Activity{},
 	}
 
 	// Execute auto migration for all models

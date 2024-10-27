@@ -32,6 +32,7 @@ func (r *RestServer) loadRoute() *gin.Engine {
 	r.addHealthRoute(router)
 	r.addSwaggerRoute(router)
 	r.addActivityRoute(router)
+	r.addDeploymentRoute(router)
 
 	return router
 }
@@ -56,6 +57,16 @@ func (r *RestServer) addActivityRoute(engine *gin.Engine) {
 	endpoints := rest.NewActivityController()
 
 	// Create a new group for the activity route
-	deployment := engine.Group("/v1/activities")
-	deployment.GET("/:deploymentId", endpoints.Get)
+	route := engine.Group("/v1/activities")
+	route.GET("/:deploymentId", endpoints.List)
+}
+
+func (r *RestServer) addDeploymentRoute(engine *gin.Engine) {
+	// Create a new deployment controller
+	endpoints := rest.NewDeploymentController()
+
+	// Create a new group for the deployment route
+	route := engine.Group("/v1/deployments")
+	route.GET("", endpoints.List)
+	route.GET("/:deploymentId", endpoints.Get)
 }
