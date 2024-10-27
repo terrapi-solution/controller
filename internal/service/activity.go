@@ -1,14 +1,94 @@
 package service
 
-import "github.com/terrapi-solution/controller/internal/database"
+import (
+	"context"
+	"errors"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/terrapi-solution/controller/internal/database"
+	model "github.com/terrapi-solution/controller/internal/models/database"
+	"gorm.io/gorm"
+)
 
 type Activity struct {
-	DB *database.DatabaseConnection
 }
 
-func NewActivityService(connection *database.DatabaseConnection) *Activity {
-	return &Activity{DB: connection}
+type ActivityRequest struct {
+	DeploymentID uint
+	Pointer      string
+	Message      string
 }
 
-func (a *Activity) Create() {
+func NewActivityService() *Activity {
+	return &Activity{}
+}
+
+func (a *Activity) Create(ctx context.Context, request ActivityRequest) (*model.Activity, error) {
+	// Get the database instance
+	conn := database.GetInstance()
+	if conn == nil {
+		return nil, errors.New("database instance is not initialized")
+	}
+
+	// Convert the request to a model
+	activity := model.Activity{
+		DeploymentID: request.DeploymentID,
+		Pointer:      request.Pointer,
+		Message:      request.Message,
+	}
+
+	// Create the activity to the database
+	if err := conn.WithContext(ctx).Create(&activity).Error; err != nil {
+		var pgxError *pgconn.PgError
+		if errors.As(err, &pgxError) {
+			if pgxError.Code == "23505" {
+				return nil, gorm.ErrDuplicatedKey
+			}
+		}
+	}
+
+	// Return the created activity
+	return &activity, nil
+}
+
+func (a *Activity) List(ctx context.Context, deploymentId, page, pageSize int) ([]model.Activity, error) {
+	// Define the list of activities
+	var activities []model.Activity
+
+	// Get the database instance
+	conn := database.GetInstance()
+	if conn == nil {
+		return activities, errors.New("database instance is not initialized")
+	}
+
+	// Get the list of activities
+
+	if err := conn.WithContext(ctx).
+		Scopes(database.Paginate(page, pageSize)).
+		Find(&activities, "deployment_id = ?", deploymentId).Error; err != nil {
+		return activities, err
+	}
+
+	// Return the list of activities
+	return activities, nil
+}
+
+func (a *Activity) Delete(ctx context.Context, id uint) error {
+	// Get the database instance
+	conn := database.GetInstance()
+	if conn == nil {
+		return errors.New("database instance is not initialized")
+	}
+
+	// Delete the activity from the database
+	deleteRes := conn.WithContext(ctx).Delete(&model.Activity{}, id)
+	if err := deleteRes.Error; err != nil {
+		return err
+	}
+
+	// Check if the activity was deleted
+	if deleteRes.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	} else {
+		return nil
+	}
 }

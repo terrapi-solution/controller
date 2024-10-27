@@ -31,6 +31,7 @@ func (r *RestServer) loadRoute() *gin.Engine {
 	// Route definitions
 	r.addHealthRoute(router)
 	r.addSwaggerRoute(router)
+	r.addActivityRoute(router)
 
 	return router
 }
@@ -48,4 +49,13 @@ func (r *RestServer) addHealthRoute(engine *gin.Engine) {
 // addSwaggerRoute adds the swagger route to the router
 func (r *RestServer) addSwaggerRoute(engine *gin.Engine) {
 	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+}
+
+func (r *RestServer) addActivityRoute(engine *gin.Engine) {
+	// Create a new activity controller
+	endpoints := rest.NewActivityController()
+
+	// Create a new group for the activity route
+	deployment := engine.Group("/v1/activities")
+	deployment.GET("/:deploymentId", endpoints.Get)
 }

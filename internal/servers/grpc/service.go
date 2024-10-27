@@ -9,7 +9,7 @@ import (
 
 // loadServices loads all gRPC services
 func (s *GrpcServer) loadServices() {
-	deployment.RegisterDeploymentServiceServer(s.server, &grpc.DeploymentServer{Services: s.services})
-	activity.RegisterActivityServiceServer(s.server, &grpc.GrpcActivityServer{Services: s.services})
-	health.RegisterHealthServiceServer(s.server, &grpc.GrpcHealthServer{Services: s.services})
+	deployment.RegisterDeploymentServiceServer(s.server, &grpc.DeploymentServer{})
+	activity.RegisterActivityServiceServer(s.server, &grpc.GrpcActivityServer{})
+	health.RegisterHealthServiceServer(s.server, &grpc.GrpcHealthServer{})
 }

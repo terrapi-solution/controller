@@ -9,16 +9,22 @@ import (
 	"sync"
 )
 
-type DatabaseConnection struct {
-	Conn *gorm.DB
-}
-
 var (
-	dbInstance *DatabaseConnection
-	once       sync.Once
+	instance *gorm.DB
+	once     sync.Once
 )
 
-func GetDatabaseConnection(config config.Datastore) *DatabaseConnection {
+// GetInstance returns the database instance
+func GetInstance() *gorm.DB {
+	if instance == nil {
+		log.Fatal().Msg("Database instance is not initialized")
+		return nil
+	} else {
+		return instance
+	}
+}
+
+func Initialize(config config.Datastore) {
 	once.Do(func() {
 		dsn := fmt.Sprintf(
 			"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
@@ -29,8 +35,6 @@ func GetDatabaseConnection(config config.Datastore) *DatabaseConnection {
 			log.Fatal().Err(err).Msg("Failed to connect to database")
 		}
 
-		dbInstance = &DatabaseConnection{Conn: conn}
+		instance = conn
 	})
-
-	return dbInstance
 }
