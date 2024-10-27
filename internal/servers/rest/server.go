@@ -31,60 +31,60 @@ func NewRestServer(config config.RestServer) *RestServer {
 }
 
 // createHttpServer creates a new HTTP server
-func (s *RestServer) createHttpServer() {
+func (r *RestServer) createHttpServer() {
 	// Create a new HTTP servers
-	address := net.JoinHostPort(s.config.Host, strconv.Itoa(s.config.Port))
-	s.http = http.Server{
+	address := net.JoinHostPort(r.config.Host, strconv.Itoa(r.config.Port))
+	r.http = http.Server{
 		Addr:         address,
-		Handler:      s.loadRoute(),
+		Handler:      r.loadRoute(),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 }
 
 // createHttpServer creates a new HTTPS server
-func (s *RestServer) createHttpsServer() {
+func (r *RestServer) createHttpsServer() {
 	// Load the TLS certificate
 	cert, err := tls.LoadX509KeyPair(
-		s.config.Certificate.CertFile,
-		s.config.Certificate.KeyFile,
+		r.config.Certificate.CertFile,
+		r.config.Certificate.KeyFile,
 	)
 	if err != nil {
 		log.Panic().Err(err).Msg("failed to load TLS configuration")
 	}
 
 	// Create a new HTTPS server
-	address := net.JoinHostPort(s.config.Host, strconv.Itoa(s.config.Port))
-	s.http = http.Server{
+	address := net.JoinHostPort(r.config.Host, strconv.Itoa(r.config.Port))
+	r.http = http.Server{
 		Addr:         address,
-		Handler:      s.loadRoute(),
+		Handler:      r.loadRoute(),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		TLSConfig: &tls.Config{
 			MinVersion:       tls.VersionTLS12,
-			CurvePreferences: s.curves(),
-			CipherSuites:     s.ciphers(),
+			CurvePreferences: r.curves(),
+			CipherSuites:     r.ciphers(),
 			Certificates:     []tls.Certificate{cert},
 		},
 	}
 }
 
 // ListenAndServe starts the HTTP server
-func (s *RestServer) ListenAndServe() error {
+func (r *RestServer) ListenAndServe() error {
 	log.Info().
-		Str("host", s.config.Host).
-		Int("port", s.config.Port).
-		Bool("tls", s.config.Certificate.Status).
+		Str("host", r.config.Host).
+		Int("port", r.config.Port).
+		Bool("tls", r.config.Certificate.Status).
 		Msg("Starting the rest servers")
-	if s.config.Certificate.Status {
-		return s.http.ListenAndServeTLS("", "")
+	if r.config.Certificate.Status {
+		return r.http.ListenAndServeTLS("", "")
 	} else {
-		return s.http.ListenAndServe()
+		return r.http.ListenAndServe()
 	}
 }
 
 // Shutdown stops the rest server
-func (s *RestServer) Shutdown(ctx context.Context) error {
+func (r *RestServer) Shutdown(ctx context.Context) error {
 	log.Info().Msg("Shutting down the rest servers")
-	return s.http.Shutdown(ctx)
+	return r.http.Shutdown(ctx)
 }
