@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"context"
@@ -52,6 +52,7 @@ func (s *Module) Create(ctx context.Context, request models.ModuleRequest) (*mod
 	// Convert the request to a model
 	entity := &models.Module{
 		Name: request.Name,
+		Type: request.Type,
 	}
 
 	// Create the module to the database
@@ -60,7 +61,8 @@ func (s *Module) Create(ctx context.Context, request models.ModuleRequest) (*mod
 	}
 
 	// Add the source to the module
-	if err := s.conn.WithContext(ctx).Create(&entity.Source).Error; err != nil {
+	request.Source.ModuleID = entity.ID
+	if err := s.conn.WithContext(ctx).Create(&request.Source).Error; err != nil {
 		// Rollback the deployment creation on failure
 		s.conn.WithContext(ctx).Delete(&entity)
 		return nil, err

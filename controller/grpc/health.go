@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 	"github.com/terrapi-solution/controller/internal/core"
-	"github.com/terrapi-solution/controller/internal/service"
+	"github.com/terrapi-solution/controller/internal/services"
 	rpc "github.com/terrapi-solution/protocol/health/v1"
 	"strings"
 )
@@ -12,15 +12,15 @@ import (
 type GrpcHealthServer struct {
 	rpc.HealthServiceServer
 	Services *core.Core
-	service  service.HealthService
+	service  services.HealthService
 }
 
-// Check performs a health check for the specified service.
+// Check performs a health check for the specified services.
 func (s *GrpcHealthServer) Check(ctx context.Context, req *rpc.CheckRequest) (*rpc.CheckResponse, error) {
-	// Create a new health service
-	//h := service.NewHealthService()
+	// Create a new health services
+	//h := services.NewHealthService()
 
-	// Map the service name to the corresponding health check function
+	// Map the services name to the corresponding health check function
 	//statusMap := map[string]func() rpc.CheckResponse_ServingStatus{
 	//	"controller": h.CheckController,
 	//	"database":   h.CheckDatabase,
@@ -28,7 +28,7 @@ func (s *GrpcHealthServer) Check(ctx context.Context, req *rpc.CheckRequest) (*r
 
 	//checkFunc, exists := statusMap[req.Service]
 	//if !exists {
-	//	// Return unknown status if the service is not recognized
+	//	// Return unknown status if the services is not recognized
 	//	return &rpc.CheckResponse{
 	//		Name:   strings.ToLower(req.Service),
 	//		Status: rpc.CheckResponse_SERVING_STATUS_SERVICE_UNKNOWN,
@@ -43,8 +43,8 @@ func (s *GrpcHealthServer) Check(ctx context.Context, req *rpc.CheckRequest) (*r
 
 // CheckAll performs a health check for all services.
 func (s *GrpcHealthServer) CheckAll(ctx context.Context, req *rpc.CheckAllRequest) (*rpc.CheckAllResponse, error) {
-	// Create a new health service
-	//h := service.NewHealthService()
+	// Create a new health services
+	//h := services.NewHealthService()
 
 	// Create a slice of health checks
 	data := rpc.CheckAllResponse{}

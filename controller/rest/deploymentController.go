@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"github.com/terrapi-solution/controller/internal/models"
-	"github.com/terrapi-solution/controller/internal/service"
+	"github.com/terrapi-solution/controller/internal/services"
 	"net/http"
 	"strconv"
 )
@@ -31,8 +31,8 @@ func (s *DeploymentController) List(ctx *gin.Context) {
 	page, _ := strconv.Atoi(ctx.Query("page"))
 	pageSize, _ := strconv.Atoi(ctx.Query("page_size"))
 
-	// Get the deployment from the service
-	svc := service.NewDeploymentService()
+	// Get the deployment from the services
+	svc := services.NewDeploymentService()
 	deployments, err := svc.List(ctx, page, pageSize)
 	if err != nil {
 		NewError(ctx, http.StatusInternalServerError, fmt.Errorf("failed to list deployments"))
@@ -63,8 +63,8 @@ func (s *DeploymentController) Get(ctx *gin.Context) {
 		return
 	}
 
-	// Get the deployment from the service
-	svc := service.NewDeploymentService()
+	// Get the deployment from the services
+	svc := services.NewDeploymentService()
 	deployment, err := svc.Get(ctx, deploymentID)
 	if err != nil && err.Error() == "record not found" {
 		NewError(ctx, http.StatusNotFound, fmt.Errorf("deployment not found"))
@@ -98,7 +98,7 @@ func (s *DeploymentController) Create(ctx *gin.Context) {
 	}
 
 	// Create the deployment to the database
-	svc := service.NewDeploymentService()
+	svc := services.NewDeploymentService()
 	deployment, err := svc.Create(ctx, request)
 	if err != nil {
 		NewError(ctx, http.StatusInternalServerError, fmt.Errorf("failed to create deployment"))

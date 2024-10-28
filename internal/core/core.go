@@ -19,14 +19,14 @@ var (
 func GetInstance() *Core {
 	// Make sure the instance is created only once.
 	once.Do(func() {
-		log.Info().Msg("Creating a new core service instance")
+		log.Info().Msg("Creating a new core services instance")
 		instance = &Core{}
 
-		log.Info().Msg("Initializing the core service")
+		log.Info().Msg("Initializing the core services")
 		instance.initializeConfiguration()
 		instance.initializeDatabase()
 
-		log.Info().Msg("Core service initialized")
+		log.Info().Msg("Core services initialized")
 	})
 	return instance
 }
@@ -37,7 +37,7 @@ func (c *Core) initializeConfiguration() {
 }
 
 func (c *Core) initializeDatabase() {
-	log.Info().Msg("Initializing database service")
+	log.Info().Msg("Initializing database services")
 	database.Initialize(c.Config.Datastore)
 	database.CreateModel()
 }

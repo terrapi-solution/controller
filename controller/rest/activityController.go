@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
-	"github.com/terrapi-solution/controller/internal/service"
+	"github.com/terrapi-solution/controller/internal/services"
 	"net/http"
 
 	"strconv"
@@ -43,8 +43,8 @@ func (s *ActivityController) List(ctx *gin.Context) {
 	page, _ := strconv.Atoi(ctx.Query("page"))
 	pageSize, _ := strconv.Atoi(ctx.Query("page_size"))
 
-	// Get the activities from the service
-	svc := service.NewActivityService()
+	// Get the activities from the services
+	svc := services.NewActivityService()
 	activities, err := svc.List(ctx, deploymentID, page, pageSize)
 	if err != nil {
 		NewError(ctx, http.StatusInternalServerError, fmt.Errorf("failed to list activities"))
