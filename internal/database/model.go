@@ -7,7 +7,7 @@ import (
 
 func CreateModel() {
 	// Define all database models
-	models := []interface{}{
+	entities := []interface{}{
 		&models.Module{},
 		&models.ModuleSource{},
 		&models.Deployment{},
@@ -16,8 +16,8 @@ func CreateModel() {
 	}
 
 	// Execute auto migration for all models
-	for _, model := range models {
-		if err := instance.AutoMigrate(model); err != nil {
+	for _, entity := range entities {
+		if err := instance.AutoMigrate(entity); err != nil {
 			log.Error().Err(err).
 				Msg("Failed to create database model")
 		}
