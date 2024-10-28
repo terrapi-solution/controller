@@ -53,6 +53,25 @@ definitions:
       value:
         type: string
     type: object
+  models.Module:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/models.ModuleType'
+      updated_at:
+        type: string
+    type: object
+  models.ModuleType:
+    enum:
+    - git
+    type: string
+    x-enum-varnames:
+    - Git
   rest.HTTPError:
     properties:
       code:
@@ -209,6 +228,39 @@ paths:
       summary: Get a specific deployment.
       tags:
       - "\U0001F4F0 Deployment"
+  /v1/modules:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Module'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.HTTPError'
+      summary: List all modules.
+      tags:
+      - "\U0001F4F0 Module"
 securityDefinitions:
   JWT:
     in: header

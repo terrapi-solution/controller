@@ -30,6 +30,7 @@ func (r *RestServer) loadRoute() *gin.Engine {
 	r.addSwaggerRoute(router)
 	r.addActivityRoute(router)
 	r.addDeploymentRoute(router)
+	r.addModuleRoute(router)
 
 	return router
 }
