@@ -26,7 +26,7 @@ func NewActivityController() *ActivityController {
 // @Param   deploymentId path  int true "Deployment ID"
 // @Param   page         query int false "Page number" default(1)
 // @Param   page_size    query int false "Page size" default(10) minimum(1) maximum(100)
-// @Success 200 {object} database.Activity
+// @Success 200 {object} models.Activity
 // @Failure 404 {object} HTTPError
 // @Failure 500 {object} HTTPError
 // @Router  /v1/activities/{deploymentId} [get]

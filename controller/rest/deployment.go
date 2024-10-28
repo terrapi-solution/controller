@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
+	"github.com/terrapi-solution/controller/internal/models"
 	"github.com/terrapi-solution/controller/internal/service"
 	"net/http"
 	"strconv"
@@ -22,7 +23,7 @@ func NewDeploymentController() *DeploymentController {
 // @Produce json
 // @Param   page         query int false "Page number" default(1)
 // @Param   page_size    query int false "Page size" default(10) minimum(1) maximum(100)
-// @Success 200 {object} database.Deployment
+// @Success 200 {object} []models.Deployment
 // @Failure 500 {object} HTTPError
 // @Router  /v1/deployments [get]
 func (s *DeploymentController) List(ctx *gin.Context) {
@@ -49,7 +50,7 @@ func (s *DeploymentController) List(ctx *gin.Context) {
 // @Accept  json
 // @Produce json
 // @Param   deploymentId path  int true "Deployment ID"
-// @Success 200 {object} database.Deployment
+// @Success 200 {object} models.Deployment
 // @Failure 404 {object} HTTPError
 // @Failure 500 {object} HTTPError
 // @Router  /v1/deployments/{deploymentId} [get]
@@ -79,10 +80,26 @@ func (s *DeploymentController) Get(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, deployment)
 }
 
+// Create is used to create a new deployment.
+// @Summary Create a new deployment.
+// @Tags    📰 Deployment
+// @Accept  json
+// @Produce json
+// @Param   deployment body models.DeploymentRequest true "Deployment"
+// @Success 201 {object} models.Deployment
+// @Failure 500 {object} HTTPError
+// @Router  /v1/deployments [post]
 func (s *DeploymentController) Create(ctx *gin.Context) {
-	// Get the deployment from the service
+	// Get the request from the body
+	var request models.DeploymentRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Create the deployment to the database
 	svc := service.NewDeploymentService()
-	deployment, err := svc.Create(ctx)
+	deployment, err := svc.Create(ctx, request)
 	if err != nil {
 		NewError(ctx, http.StatusInternalServerError, fmt.Errorf("failed to create deployment"))
 		log.Err(err).Msg("failed to create deployment")

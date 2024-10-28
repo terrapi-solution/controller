@@ -2,10 +2,7 @@ package rest
 
 import (
 	"github.com/gin-gonic/gin"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/terrapi-solution/controller/controller/rest"
-	_ "github.com/terrapi-solution/controller/docs"
+
 	"github.com/terrapi-solution/controller/internal/middleware/header"
 )
 
@@ -35,38 +32,4 @@ func (r *RestServer) loadRoute() *gin.Engine {
 	r.addDeploymentRoute(router)
 
 	return router
-}
-
-// addHealthRoute adds the health route to the router
-func (r *RestServer) addHealthRoute(engine *gin.Engine) {
-	// Create a new health controller
-	endpoints := rest.NewHealthController()
-
-	// Create a new group for the health route
-	deployment := engine.Group("/health")
-	deployment.GET("", endpoints.Get)
-}
-
-// addSwaggerRoute adds the swagger route to the router
-func (r *RestServer) addSwaggerRoute(engine *gin.Engine) {
-	engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-}
-
-func (r *RestServer) addActivityRoute(engine *gin.Engine) {
-	// Create a new activity controller
-	endpoints := rest.NewActivityController()
-
-	// Create a new group for the activity route
-	route := engine.Group("/v1/activities")
-	route.GET("/:deploymentId", endpoints.List)
-}
-
-func (r *RestServer) addDeploymentRoute(engine *gin.Engine) {
-	// Create a new deployment controller
-	endpoints := rest.NewDeploymentController()
-
-	// Create a new group for the deployment route
-	route := engine.Group("/v1/deployments")
-	route.GET("", endpoints.List)
-	route.GET("/:deploymentId", endpoints.Get)
 }
