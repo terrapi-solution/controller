@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/terrapi-solution/controller/internal/database"
-	model "github.com/terrapi-solution/controller/internal/models"
+	"github.com/terrapi-solution/controller/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -22,7 +22,7 @@ func NewActivityService() *Activity {
 	return &Activity{}
 }
 
-func (a *Activity) Create(ctx context.Context, request ActivityRequest) (*model.Activity, error) {
+func (a *Activity) Create(ctx context.Context, request ActivityRequest) (*models.Activity, error) {
 	// Get the database instance
 	conn := database.GetInstance()
 	if conn == nil {
@@ -30,7 +30,7 @@ func (a *Activity) Create(ctx context.Context, request ActivityRequest) (*model.
 	}
 
 	// Convert the request to a model
-	activity := model.Activity{
+	activity := models.Activity{
 		DeploymentID: request.DeploymentID,
 		Pointer:      request.Pointer,
 		Message:      request.Message,
@@ -50,9 +50,9 @@ func (a *Activity) Create(ctx context.Context, request ActivityRequest) (*model.
 	return &activity, nil
 }
 
-func (a *Activity) List(ctx context.Context, deploymentId, page, pageSize int) ([]model.Activity, error) {
+func (a *Activity) List(ctx context.Context, deploymentId, page, pageSize int) ([]models.Activity, error) {
 	// Define the list of activities
-	var entities []model.Activity
+	var entities []models.Activity
 
 	// Get the database instance
 	conn := database.GetInstance()
@@ -80,7 +80,7 @@ func (a *Activity) Delete(ctx context.Context, id uint) error {
 	}
 
 	// Delete the activity from the database
-	deleteRes := conn.WithContext(ctx).Delete(&model.Activity{}, id)
+	deleteRes := conn.WithContext(ctx).Delete(&models.Activity{}, id)
 	if err := deleteRes.Error; err != nil {
 		return err
 	}
