@@ -1,0 +1,217 @@
+definitions:
+  models.Activity:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      message:
+        type: string
+      pointer:
+        type: string
+    type: object
+  models.Deployment:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      status:
+        $ref: '#/definitions/models.DeploymentStatus'
+    type: object
+  models.DeploymentRequest:
+    properties:
+      module_id:
+        type: integer
+      name:
+        type: string
+      variables:
+        items:
+          $ref: '#/definitions/models.DeploymentVariable'
+        type: array
+    type: object
+  models.DeploymentStatus:
+    enum:
+    - unknown
+    - pending
+    - running
+    - failed
+    - succeeded
+    type: string
+    x-enum-varnames:
+    - Unknown
+    - Pending
+    - Running
+    - Failed
+    - Succeeded
+  models.DeploymentVariable:
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+    type: object
+  rest.HTTPError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+info:
+  contact:
+    email: contact@thomas-illiet.fr
+    name: Support
+    url: https://github.com/terrapi-solution
+  description: TerrAPI is a service designed to simplify and automate your deployments.
+  title: TerrAPI Controller
+  version: "1.0"
+paths:
+  /example/helloworld:
+    get:
+      consumes:
+      - application/json
+      description: do ping
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: ping example !
+      tags:
+      - example
+  /v1/activities/{deploymentId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Activity'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.HTTPError'
+      summary: List all deployments for a specific deployment
+      tags:
+      - "\U0001F4F0 Activity"
+  /v1/deployments:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Deployment'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.HTTPError'
+      summary: List all deployments.
+      tags:
+      - "\U0001F4F0 Deployment"
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Deployment
+        in: body
+        name: deployment
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeploymentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Deployment'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.HTTPError'
+      summary: Create a new deployment.
+      tags:
+      - "\U0001F4F0 Deployment"
+  /v1/deployments/{deploymentId}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: deploymentId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Deployment'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.HTTPError'
+      summary: Get a specific deployment.
+      tags:
+      - "\U0001F4F0 Deployment"
+securityDefinitions:
+  JWT:
+    in: header
+    name: token
+    type: apiKey
+swagger: "2.0"
