@@ -19,9 +19,8 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/example/helloworld": {
+        "/health": {
             "get": {
-                "description": "do ping",
                 "consumes": [
                     "application/json"
                 ],
@@ -29,20 +28,26 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "example"
+                    "🍏 Health"
                 ],
-                "summary": "ping example !",
+                "summary": "Get the health of the service.",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/health.responseHealth"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
                         }
                     }
                 }
             }
         },
-        "/v1/activities/{deploymentId}": {
+        "/v1/activities": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -51,21 +56,31 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "📰 Activity"
+                    "🍍 Activity"
                 ],
-                "summary": "List all deployments for a specific deployment",
+                "summary": "List all activity.",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Deployment ID",
-                        "name": "deploymentId",
-                        "in": "path",
-                        "required": true
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
                     },
                     {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Filter",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
                         "type": "integer",
                         "default": 1,
-                        "description": "Page number",
+                        "description": "Page",
                         "name": "page",
                         "in": "query"
                     },
@@ -77,6 +92,60 @@ const docTemplate = `{
                         "description": "Page size",
                         "name": "page_size",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "id",
+                        "description": "Order by",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Order direction",
+                        "name": "order_direction",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Activity"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/activities/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "🍍 Activity"
+                ],
+                "summary": "Get a specific activity.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Activity identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -89,66 +158,19 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.HTTPError"
+                            "$ref": "#/definitions/errors.AppError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.HTTPError"
+                            "$ref": "#/definitions/errors.AppError"
                         }
                     }
                 }
             }
         },
         "/v1/deployments": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "📰 Deployment"
-                ],
-                "summary": "List all deployments.",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Page size",
-                        "name": "page_size",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Deployment"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/rest.HTTPError"
-                        }
-                    }
-                }
-            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -157,7 +179,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "📰 Deployment"
+                    "🍑 Deployment"
                 ],
                 "summary": "Create a new deployment.",
                 "parameters": [
@@ -181,13 +203,13 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.HTTPError"
+                            "$ref": "#/definitions/errors.AppError"
                         }
                     }
                 }
             }
         },
-        "/v1/deployments/{deploymentId}": {
+        "/v1/deployments/{id}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -196,14 +218,14 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "📰 Deployment"
+                    "🍑 Deployment"
                 ],
                 "summary": "Get a specific deployment.",
                 "parameters": [
                     {
                         "type": "integer",
                         "description": "Deployment ID",
-                        "name": "deploymentId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -218,13 +240,214 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/rest.HTTPError"
+                            "$ref": "#/definitions/errors.AppError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.HTTPError"
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "🍑 Deployment"
+                ],
+                "summary": "Delete a specific deployment.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deployment identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/deployments/{id}/activities": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "🍑 Deployment"
+                ],
+                "summary": "Get all activities of a specific deployment.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "id",
+                        "description": "Order by",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Order direction",
+                        "name": "order_direction",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Activity"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/deployments/{id}/module": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "🍑 Deployment"
+                ],
+                "summary": "Get the module of a specific deployment.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Module"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/deployments/{id}/module/source": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "🍑 Deployment"
+                ],
+                "summary": "Get the source of the module of a specific deployment.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Deployment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ModuleSource"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
                         }
                     }
                 }
@@ -239,14 +462,31 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "📰 Module"
+                    "🍆 Module"
                 ],
                 "summary": "List all modules.",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Filter",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
                         "type": "integer",
                         "default": 1,
-                        "description": "Page number",
+                        "description": "Page",
                         "name": "page",
                         "in": "query"
                     },
@@ -257,6 +497,20 @@ const docTemplate = `{
                         "default": 10,
                         "description": "Page size",
                         "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "id",
+                        "description": "Order by",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Order direction",
+                        "name": "order_direction",
                         "in": "query"
                     }
                 ],
@@ -273,7 +527,221 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/rest.HTTPError"
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "🍆 Module"
+                ],
+                "summary": "Create a new module.",
+                "parameters": [
+                    {
+                        "description": "Module",
+                        "name": "module",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ModuleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Module"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/modules/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "🍆 Module"
+                ],
+                "summary": "Get a specific module.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Module identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Deployment"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "🍆 Module"
+                ],
+                "summary": "Delete a specific module.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Module identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/modules/{id}/source": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "🍆 Module"
+                ],
+                "summary": "Get the source of a specific module.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Module identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ModuleSource"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "🍆 Module"
+                ],
+                "summary": "Update the source of a specific module.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Module identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Module source",
+                        "name": "source",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ModuleSource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
                         }
                     }
                 }
@@ -281,6 +749,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "errors.AppError": {
+            "type": "object",
+            "properties": {
+                "err": {},
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "health.responseHealth": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Activity": {
             "type": "object",
             "properties": {
@@ -380,6 +865,34 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ModuleRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/models.ModuleSource"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.ModuleType"
+                }
+            }
+        },
+        "models.ModuleSource": {
+            "type": "object",
+            "properties": {
+                "branch": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "repository": {
+                    "type": "string"
+                }
+            }
+        },
         "models.ModuleType": {
             "type": "string",
             "enum": [
@@ -388,17 +901,6 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "Git"
             ]
-        },
-        "rest.HTTPError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
         }
     },
     "securityDefinitions": {

@@ -4,6 +4,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/terrapi-solution/controller/internal/config"
 	"github.com/terrapi-solution/controller/internal/core"
+	services "github.com/terrapi-solution/controller/router/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
@@ -29,7 +30,7 @@ func NewGRPCServer(cfg *config.Config, coreService *core.Core) *GrpcServer {
 	i.server = i.createGrpcServer()
 
 	// Register all gRPC services
-	i.loadServices()
+	services.NewGrpcService(i.server)
 
 	// Enable gRPC servers reflection
 	reflection.Register(i.server)

@@ -1,9 +1,9 @@
-package grpc
+package health
 
 import (
 	"context"
 	"github.com/terrapi-solution/controller/internal/core"
-	"github.com/terrapi-solution/controller/internal/services"
+	"github.com/terrapi-solution/controller/internal/services/health"
 	rpc "github.com/terrapi-solution/protocol/health/v1"
 	"strings"
 )
@@ -12,7 +12,7 @@ import (
 type GrpcHealthServer struct {
 	rpc.HealthServiceServer
 	Services *core.Core
-	service  services.HealthService
+	service  health.HealthService
 }
 
 // Check performs a health check for the specified services.

@@ -1,4 +1,15 @@
 definitions:
+  errors.AppError:
+    properties:
+      err: { }
+      type:
+        type: string
+    type: object
+  health.responseHealth:
+    properties:
+      status:
+        type: string
+    type: object
   models.Activity:
     properties:
       created_at:
@@ -66,19 +77,30 @@ definitions:
       updated_at:
         type: string
     type: object
+  models.ModuleRequest:
+    properties:
+      name:
+        type: string
+      source:
+        $ref: '#/definitions/models.ModuleSource'
+      type:
+        $ref: '#/definitions/models.ModuleType'
+    type: object
+  models.ModuleSource:
+    properties:
+      branch:
+        type: string
+      path:
+        type: string
+      repository:
+        type: string
+    type: object
   models.ModuleType:
     enum:
     - git
     type: string
     x-enum-varnames:
     - Git
-  rest.HTTPError:
-    properties:
-      code:
-        type: integer
-      message:
-        type: string
-    type: object
 info:
   contact:
     email: contact@thomas-illiet.fr
@@ -88,34 +110,44 @@ info:
   title: TerrAPI Controller
   version: "1.0"
 paths:
-  /example/helloworld:
+  /health:
     get:
       consumes:
       - application/json
-      description: do ping
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: string
-      summary: ping example !
+            $ref: '#/definitions/health.responseHealth'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Get the health of the service.
       tags:
-      - example
-  /v1/activities/{deploymentId}:
+        - "\U0001F34F Health"
+  /v1/activities:
     get:
       consumes:
       - application/json
       parameters:
-      - description: Deployment ID
-        in: path
-        name: deploymentId
-        required: true
-        type: integer
+        - description: Search
+          in: query
+          name: search
+          type: string
+        - collectionFormat: csv
+          description: Filter
+          in: query
+          items:
+            type: string
+          name: filter
+          type: array
       - default: 1
-        description: Page number
+        description: Page
         in: query
+        minimum: 1
         name: page
         type: integer
       - default: 10
@@ -125,6 +157,42 @@ paths:
         minimum: 1
         name: page_size
         type: integer
+        - default: id
+          description: Order by
+          in: query
+          name: order_by
+          type: string
+        - default: desc
+          description: Order direction
+          in: query
+          name: order_direction
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Activity'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: List all activity.
+      tags:
+        - "\U0001F34D Activity"
+  /v1/activities/{id}:
+    get:
+      consumes:
+        - application/json
+      parameters:
+        - description: Activity identifier
+          in: path
+          name: id
+          required: true
+          type: integer
       produces:
       - application/json
       responses:
@@ -135,59 +203,27 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.HTTPError'
+            $ref: '#/definitions/errors.AppError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.HTTPError'
-      summary: List all deployments for a specific deployment
+            $ref: '#/definitions/errors.AppError'
+      summary: Get a specific activity.
       tags:
-      - "\U0001F4F0 Activity"
+        - "\U0001F34D Activity"
   /v1/deployments:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - default: 1
-        description: Page number
-        in: query
-        name: page
-        type: integer
-      - default: 10
-        description: Page size
-        in: query
-        maximum: 100
-        minimum: 1
-        name: page_size
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.Deployment'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/rest.HTTPError'
-      summary: List all deployments.
-      tags:
-      - "\U0001F4F0 Deployment"
     post:
       consumes:
-      - application/json
+        - application/json
       parameters:
-      - description: Deployment
-        in: body
-        name: deployment
-        required: true
-        schema:
-          $ref: '#/definitions/models.DeploymentRequest'
+        - description: Deployment
+          in: body
+          name: deployment
+          required: true
+          schema:
+            $ref: '#/definitions/models.DeploymentRequest'
       produces:
-      - application/json
+        - application/json
       responses:
         "201":
           description: Created
@@ -196,22 +232,47 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.HTTPError'
+            $ref: '#/definitions/errors.AppError'
       summary: Create a new deployment.
       tags:
-      - "\U0001F4F0 Deployment"
-  /v1/deployments/{deploymentId}:
+        - "\U0001F351 Deployment"
+  /v1/deployments/{id}:
+    delete:
+      consumes:
+        - application/json
+      parameters:
+        - description: Deployment identifier
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Delete a specific deployment.
+      tags:
+        - "\U0001F351 Deployment"
     get:
       consumes:
       - application/json
       parameters:
-      - description: Deployment ID
-        in: path
-        name: deploymentId
-        required: true
-        type: integer
+        - description: Deployment ID
+          in: path
+          name: id
+          required: true
+          type: integer
       produces:
-      - application/json
+        - application/json
       responses:
         "200":
           description: OK
@@ -220,22 +281,28 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/rest.HTTPError'
+            $ref: '#/definitions/errors.AppError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.HTTPError'
+            $ref: '#/definitions/errors.AppError'
       summary: Get a specific deployment.
       tags:
-      - "\U0001F4F0 Deployment"
-  /v1/modules:
+        - "\U0001F351 Deployment"
+  /v1/deployments/{id}/activities:
     get:
       consumes:
-      - application/json
+        - application/json
       parameters:
+        - description: Deployment ID
+          in: path
+          name: id
+          required: true
+          type: integer
       - default: 1
-        description: Page number
+        description: Page
         in: query
+        minimum: 1
         name: page
         type: integer
       - default: 10
@@ -245,6 +312,131 @@ paths:
         minimum: 1
         name: page_size
         type: integer
+        - default: id
+          description: Order by
+          in: query
+          name: order_by
+          type: string
+        - default: desc
+          description: Order direction
+          in: query
+          name: order_direction
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Activity'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Get all activities of a specific deployment.
+      tags:
+        - "\U0001F351 Deployment"
+  /v1/deployments/{id}/module:
+    get:
+      consumes:
+      - application/json
+      parameters:
+        - description: Deployment ID
+          in: path
+          name: id
+        required: true
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Module'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Get the module of a specific deployment.
+      tags:
+        - "\U0001F351 Deployment"
+  /v1/deployments/{id}/module/source:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Deployment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ModuleSource'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Get the source of the module of a specific deployment.
+      tags:
+        - "\U0001F351 Deployment"
+  /v1/modules:
+    get:
+      consumes:
+      - application/json
+      parameters:
+        - description: Search
+          in: query
+          name: search
+          type: string
+        - collectionFormat: csv
+          description: Filter
+          in: query
+          items:
+            type: string
+          name: filter
+          type: array
+      - default: 1
+        description: Page
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+        - default: id
+          description: Order by
+          in: query
+          name: order_by
+          type: string
+        - default: desc
+          description: Order direction
+          in: query
+          name: order_direction
+          type: string
       produces:
       - application/json
       responses:
@@ -257,10 +449,150 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/rest.HTTPError'
+            $ref: '#/definitions/errors.AppError'
       summary: List all modules.
       tags:
-      - "\U0001F4F0 Module"
+        - "\U0001F346 Module"
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: Module
+          in: body
+          name: module
+          required: true
+          schema:
+            $ref: '#/definitions/models.ModuleRequest'
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Module'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Create a new module.
+      tags:
+        - "\U0001F346 Module"
+  /v1/modules/{id}:
+    delete:
+      consumes:
+        - application/json
+      parameters:
+        - description: Module identifier
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Delete a specific module.
+      tags:
+        - "\U0001F346 Module"
+    get:
+      consumes:
+        - application/json
+      parameters:
+        - description: Module identifier
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Deployment'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Get a specific module.
+      tags:
+        - "\U0001F346 Module"
+  /v1/modules/{id}/source:
+    get:
+      consumes:
+        - application/json
+      parameters:
+        - description: Module identifier
+          in: path
+          name: id
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ModuleSource'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Get the source of a specific module.
+      tags:
+        - "\U0001F346 Module"
+    put:
+      consumes:
+        - application/json
+      parameters:
+        - description: Module identifier
+          in: path
+          name: id
+          required: true
+          type: integer
+        - description: Module source
+          in: body
+          name: source
+          required: true
+          schema:
+            $ref: '#/definitions/models.ModuleSource'
+      produces:
+        - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.AppError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      summary: Update the source of a specific module.
+      tags:
+        - "\U0001F346 Module"
 securityDefinitions:
   JWT:
     in: header

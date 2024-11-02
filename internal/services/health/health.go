@@ -1,4 +1,4 @@
-package services
+package health
 
 import (
 	"github.com/rs/zerolog/log"

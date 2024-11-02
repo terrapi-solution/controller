@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"github.com/terrapi-solution/controller/internal/config"
+	routerHttp "github.com/terrapi-solution/controller/router/http"
 	"net"
 	"net/http"
 	"strconv"
@@ -36,7 +37,7 @@ func (r *RestServer) createHttpServer() {
 	address := net.JoinHostPort(r.config.Host, strconv.Itoa(r.config.Port))
 	r.http = http.Server{
 		Addr:         address,
-		Handler:      r.loadRoute(),
+		Handler:      routerHttp.NewHttpHandler(),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
@@ -57,7 +58,7 @@ func (r *RestServer) createHttpsServer() {
 	address := net.JoinHostPort(r.config.Host, strconv.Itoa(r.config.Port))
 	r.http = http.Server{
 		Addr:         address,
-		Handler:      r.loadRoute(),
+		Handler:      routerHttp.NewHttpHandler(),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		TLSConfig: &tls.Config{
