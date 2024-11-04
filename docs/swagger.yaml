@@ -1,49 +1,18 @@
 definitions:
-  errors.AppError:
+  activities.ActivityResponse:
     properties:
-      err: { }
-      type:
+      createdAt:
         type: string
-    type: object
-  health.responseHealth:
-    properties:
-      status:
-        type: string
-    type: object
-  models.Activity:
-    properties:
-      created_at:
-        type: string
+      deploymentId:
+        type: integer
       id:
         type: integer
       message:
         type: string
-      pointer:
+      type:
         type: string
     type: object
-  models.Deployment:
-    properties:
-      created_at:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-      status:
-        $ref: '#/definitions/models.DeploymentStatus'
-    type: object
-  models.DeploymentRequest:
-    properties:
-      module_id:
-        type: integer
-      name:
-        type: string
-      variables:
-        items:
-          $ref: '#/definitions/models.DeploymentVariable'
-        type: array
-    type: object
-  models.DeploymentStatus:
+  deployment.DeploymentStatus:
     enum:
     - unknown
     - pending
@@ -57,14 +26,56 @@ definitions:
     - Running
     - Failed
     - Succeeded
-  models.DeploymentVariable:
+  deployments.DeploymentRequest:
+    properties:
+      moduleID:
+        type: integer
+      name:
+        type: string
+      variables:
+        items:
+          $ref: '#/definitions/deployments.DeploymentVariableRequest'
+        type: array
+    type: object
+  deployments.DeploymentResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      module_id:
+        type: integer
+      name:
+        type: string
+      status:
+        $ref: '#/definitions/deployment.DeploymentStatus'
+    type: object
+  deployments.DeploymentVariableRequest:
     properties:
       name:
         type: string
       value:
         type: string
     type: object
-  models.Module:
+  deployments.ListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/deployments.DeploymentResponse'
+        type: array
+    type: object
+  errors.AppError:
+    properties:
+      err: { }
+      type:
+        type: string
+    type: object
+  health.responseHealth:
+    properties:
+      status:
+        type: string
+    type: object
+  modules.ModuleResponse:
     properties:
       created_at:
         type: string
@@ -72,35 +83,7 @@ definitions:
         type: integer
       name:
         type: string
-      type:
-        $ref: '#/definitions/models.ModuleType'
-      updated_at:
-        type: string
     type: object
-  models.ModuleRequest:
-    properties:
-      name:
-        type: string
-      source:
-        $ref: '#/definitions/models.ModuleSource'
-      type:
-        $ref: '#/definitions/models.ModuleType'
-    type: object
-  models.ModuleSource:
-    properties:
-      branch:
-        type: string
-      path:
-        type: string
-      repository:
-        type: string
-    type: object
-  models.ModuleType:
-    enum:
-    - git
-    type: string
-    x-enum-varnames:
-    - Git
 info:
   contact:
     email: contact@thomas-illiet.fr
@@ -174,7 +157,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Activity'
+              $ref: '#/definitions/activities.ActivityResponse'
             type: array
         "500":
           description: Internal Server Error
@@ -199,7 +182,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Activity'
+            $ref: '#/definitions/activities.ActivityResponse'
         "404":
           description: Not Found
           schema:
@@ -212,6 +195,63 @@ paths:
       tags:
         - "\U0001F34D Activity"
   /v1/deployments:
+    get:
+      consumes:
+        - application/json
+      parameters:
+        - description: Search
+          in: query
+          name: search
+          type: string
+        - collectionFormat: csv
+          description: Filter
+          in: query
+          items:
+            type: string
+          name: filter
+          type: array
+        - default: 1
+          description: Page
+          in: query
+          minimum: 1
+          name: page
+          type: integer
+        - default: 10
+          description: Page size
+          in: query
+          maximum: 100
+          minimum: 1
+          name: page_size
+          type: integer
+        - default: id
+          description: Order by
+          in: query
+          name: order_by
+          type: string
+        - default: desc
+          description: Order direction
+          in: query
+          name: order_direction
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/deployments.ListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.AppError'
+      security:
+        - ApiKeyAuth: [ ]
+        - OAuth2Application:
+            - write
+            - admin
+      summary: List all deployments.
+      tags:
+        - "\U0001F351 Deployment"
     post:
       consumes:
         - application/json
@@ -221,14 +261,14 @@ paths:
           name: deployment
           required: true
           schema:
-            $ref: '#/definitions/models.DeploymentRequest'
+            $ref: '#/definitions/deployments.DeploymentRequest'
       produces:
         - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Deployment'
+            $ref: '#/definitions/deployments.DeploymentResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -236,14 +276,14 @@ paths:
       summary: Create a new deployment.
       tags:
         - "\U0001F351 Deployment"
-  /v1/deployments/{id}:
+  /v1/deployments/{deploymentId}:
     delete:
       consumes:
         - application/json
       parameters:
         - description: Deployment identifier
           in: path
-          name: id
+          name: deploymentId
           required: true
           type: integer
       produces:
@@ -268,7 +308,7 @@ paths:
       parameters:
         - description: Deployment ID
           in: path
-          name: id
+          name: deploymentId
           required: true
           type: integer
       produces:
@@ -277,7 +317,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Deployment'
+            $ref: '#/definitions/deployments.DeploymentResponse'
         "404":
           description: Not Found
           schema:
@@ -289,14 +329,14 @@ paths:
       summary: Get a specific deployment.
       tags:
         - "\U0001F351 Deployment"
-  /v1/deployments/{id}/activities:
+  /v1/deployments/{deploymentId}/activities:
     get:
       consumes:
         - application/json
       parameters:
         - description: Deployment ID
           in: path
-          name: id
+          name: deploymentId
           required: true
           type: integer
       - default: 1
@@ -329,7 +369,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Activity'
+              $ref: '#/definitions/activities.ActivityResponse'
             type: array
         "404":
           description: Not Found
@@ -342,14 +382,14 @@ paths:
       summary: Get all activities of a specific deployment.
       tags:
         - "\U0001F351 Deployment"
-  /v1/deployments/{id}/module:
+  /v1/deployments/{deploymentId}/module:
     get:
       consumes:
       - application/json
       parameters:
         - description: Deployment ID
           in: path
-          name: id
+          name: deploymentId
         required: true
           type: integer
       produces:
@@ -358,7 +398,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Module'
+            $ref: '#/definitions/errors.AppError'
         "404":
           description: Not Found
           schema:
@@ -370,14 +410,14 @@ paths:
       summary: Get the module of a specific deployment.
       tags:
         - "\U0001F351 Deployment"
-  /v1/deployments/{id}/module/source:
+  /v1/deployments/{deploymentId}/module/source:
     get:
       consumes:
       - application/json
       parameters:
       - description: Deployment ID
         in: path
-        name: id
+        name: deploymentId
         required: true
         type: integer
       produces:
@@ -386,7 +426,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ModuleSource'
+            $ref: '#/definitions/errors.AppError'
         "404":
           description: Not Found
           schema:
@@ -444,7 +484,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Module'
+              $ref: '#/definitions/modules.ModuleResponse'
             type: array
         "500":
           description: Internal Server Error
@@ -462,14 +502,14 @@ paths:
           name: module
           required: true
           schema:
-            $ref: '#/definitions/models.ModuleRequest'
+            $ref: '#/definitions/modules.ModuleResponse'
       produces:
         - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Module'
+            $ref: '#/definitions/modules.ModuleResponse'
         "400":
           description: Bad Request
           schema:
@@ -522,7 +562,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Deployment'
+            $ref: '#/definitions/modules.ModuleResponse'
         "404":
           description: Not Found
           schema:
@@ -550,7 +590,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ModuleSource'
+            $ref: '#/definitions/modules.ModuleResponse'
         "404":
           description: Not Found
           schema:
@@ -576,7 +616,7 @@ paths:
           name: source
           required: true
           schema:
-            $ref: '#/definitions/models.ModuleSource'
+            $ref: '#/definitions/modules.ModuleResponse'
       produces:
         - application/json
       responses:

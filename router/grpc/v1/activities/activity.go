@@ -2,8 +2,6 @@ package activities
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
-	"github.com/terrapi-solution/controller/internal/services/activity"
 	rpc "github.com/terrapi-solution/protocol/activity/v1"
 )
 
@@ -18,19 +16,19 @@ func (s *GrpcActivityServer) List(ctx context.Context, req *rpc.ListRequest) (*r
 
 func (s *GrpcActivityServer) Insert(ctx context.Context, req *rpc.InsertRequest) (*rpc.InsertResponse, error) {
 
-	svc := activity.NewActivityService()
-	create, err := svc.Create(ctx, activity.ActivityRequest{
-		DeploymentID: uint(req.Deployment),
-		Pointer:      req.Pointer.String(),
-		Message:      req.Message,
-	})
+	//svc := activity.NewActivityService()
+	//create, err := svc.Create(ctx, activity.ActivityRequest{
+	//		DeploymentID: uint(req.Deployment),
+	//		Pointer:      req.Pointer.String(),
+	//		Message:      req.Message,
+	//	})
 
-	if err == nil {
-		log.Debug().Msgf("Activity created with ID: %d", create.ID)
-		return &rpc.InsertResponse{
-			Id: int32(create.ID),
-		}, nil
-	}
+	//	if err == nil {
+	//		log.Debug().Msgf("Activity created with ID: %d", create.ID)
+	//		return &rpc.InsertResponse{
+	//			Id: int32(create.ID),
+	//		}, nil
+	//	}
 
-	return nil, err
+	return nil, nil
 }

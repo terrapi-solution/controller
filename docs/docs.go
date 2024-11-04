@@ -114,7 +114,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Activity"
+                                "$ref": "#/definitions/activities.ActivityResponse"
                             }
                         }
                     },
@@ -152,7 +152,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Activity"
+                            "$ref": "#/definitions/activities.ActivityResponse"
                         }
                     },
                     "404": {
@@ -171,6 +171,92 @@ const docTemplate = `{
             }
         },
         "/v1/deployments": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    },
+                    {
+                        "OAuth2Application": [
+                            "write",
+                            "admin"
+                        ]
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "🍑 Deployment"
+                ],
+                "summary": "List all deployments.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "Filter",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "id",
+                        "description": "Order by",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Order direction",
+                        "name": "order_direction",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/deployments.ListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.AppError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -189,7 +275,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.DeploymentRequest"
+                            "$ref": "#/definitions/deployments.DeploymentRequest"
                         }
                     }
                 ],
@@ -197,7 +283,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Deployment"
+                            "$ref": "#/definitions/deployments.DeploymentResponse"
                         }
                     },
                     "500": {
@@ -209,7 +295,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/deployments/{id}": {
+        "/v1/deployments/{deploymentId}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -225,7 +311,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Deployment ID",
-                        "name": "id",
+                        "name": "deploymentId",
                         "in": "path",
                         "required": true
                     }
@@ -234,7 +320,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Deployment"
+                            "$ref": "#/definitions/deployments.DeploymentResponse"
                         }
                     },
                     "404": {
@@ -266,7 +352,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Deployment identifier",
-                        "name": "id",
+                        "name": "deploymentId",
                         "in": "path",
                         "required": true
                     }
@@ -290,7 +376,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/deployments/{id}/activities": {
+        "/v1/deployments/{deploymentId}/activities": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -306,7 +392,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Deployment ID",
-                        "name": "id",
+                        "name": "deploymentId",
                         "in": "path",
                         "required": true
                     },
@@ -348,7 +434,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Activity"
+                                "$ref": "#/definitions/activities.ActivityResponse"
                             }
                         }
                     },
@@ -367,7 +453,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/deployments/{id}/module": {
+        "/v1/deployments/{deploymentId}/module": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -383,7 +469,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Deployment ID",
-                        "name": "id",
+                        "name": "deploymentId",
                         "in": "path",
                         "required": true
                     }
@@ -392,7 +478,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Module"
+                            "$ref": "#/definitions/errors.AppError"
                         }
                     },
                     "404": {
@@ -410,7 +496,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/deployments/{id}/module/source": {
+        "/v1/deployments/{deploymentId}/module/source": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -426,7 +512,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Deployment ID",
-                        "name": "id",
+                        "name": "deploymentId",
                         "in": "path",
                         "required": true
                     }
@@ -435,7 +521,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ModuleSource"
+                            "$ref": "#/definitions/errors.AppError"
                         }
                     },
                     "404": {
@@ -520,7 +606,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Module"
+                                "$ref": "#/definitions/modules.ModuleResponse"
                             }
                         }
                     },
@@ -550,7 +636,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ModuleRequest"
+                            "$ref": "#/definitions/modules.ModuleResponse"
                         }
                     }
                 ],
@@ -558,7 +644,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Module"
+                            "$ref": "#/definitions/modules.ModuleResponse"
                         }
                     },
                     "400": {
@@ -601,7 +687,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Deployment"
+                            "$ref": "#/definitions/modules.ModuleResponse"
                         }
                     },
                     "404": {
@@ -682,7 +768,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ModuleSource"
+                            "$ref": "#/definitions/modules.ModuleResponse"
                         }
                     },
                     "404": {
@@ -724,7 +810,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ModuleSource"
+                            "$ref": "#/definitions/modules.ModuleResponse"
                         }
                     }
                 ],
@@ -749,6 +835,102 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "activities.ActivityResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deploymentId": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "deployment.DeploymentStatus": {
+            "type": "string",
+            "enum": [
+                "unknown",
+                "pending",
+                "running",
+                "failed",
+                "succeeded"
+            ],
+            "x-enum-varnames": [
+                "Unknown",
+                "Pending",
+                "Running",
+                "Failed",
+                "Succeeded"
+            ]
+        },
+        "deployments.DeploymentRequest": {
+            "type": "object",
+            "properties": {
+                "moduleID": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "variables": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/deployments.DeploymentVariableRequest"
+                    }
+                }
+            }
+        },
+        "deployments.DeploymentResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "module_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/deployment.DeploymentStatus"
+                }
+            }
+        },
+        "deployments.DeploymentVariableRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "deployments.ListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/deployments.DeploymentResponse"
+                    }
+                }
+            }
+        },
         "errors.AppError": {
             "type": "object",
             "properties": {
@@ -766,24 +948,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Activity": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "pointer": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Deployment": {
+        "modules.ModuleResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -794,113 +959,8 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/models.DeploymentStatus"
                 }
             }
-        },
-        "models.DeploymentRequest": {
-            "type": "object",
-            "properties": {
-                "module_id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "variables": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.DeploymentVariable"
-                    }
-                }
-            }
-        },
-        "models.DeploymentStatus": {
-            "type": "string",
-            "enum": [
-                "unknown",
-                "pending",
-                "running",
-                "failed",
-                "succeeded"
-            ],
-            "x-enum-varnames": [
-                "Unknown",
-                "Pending",
-                "Running",
-                "Failed",
-                "Succeeded"
-            ]
-        },
-        "models.DeploymentVariable": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Module": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/models.ModuleType"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.ModuleRequest": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                },
-                "source": {
-                    "$ref": "#/definitions/models.ModuleSource"
-                },
-                "type": {
-                    "$ref": "#/definitions/models.ModuleType"
-                }
-            }
-        },
-        "models.ModuleSource": {
-            "type": "object",
-            "properties": {
-                "branch": {
-                    "type": "string"
-                },
-                "path": {
-                    "type": "string"
-                },
-                "repository": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.ModuleType": {
-            "type": "string",
-            "enum": [
-                "git"
-            ],
-            "x-enum-varnames": [
-                "Git"
-            ]
         }
     },
     "securityDefinitions": {

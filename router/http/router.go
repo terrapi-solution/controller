@@ -2,8 +2,8 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/terrapi-solution/controller/internal/errors"
 	"github.com/terrapi-solution/controller/internal/middleware/header"
+	"github.com/terrapi-solution/controller/router/http/errors"
 	"github.com/terrapi-solution/controller/router/http/health"
 	"github.com/terrapi-solution/controller/router/http/swagger"
 	"github.com/terrapi-solution/controller/router/http/v1"
