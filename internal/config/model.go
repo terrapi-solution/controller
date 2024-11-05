@@ -2,8 +2,9 @@ package config
 
 // Config represents the overall configuration for the application.
 type Config struct {
-	Servers   Servers   // Servers contains the configuration for various servers.
-	Datastore Datastore // Datastore contains the configuration for the database.
+	Authentication Authentication // Authentication contains the configuration for authentication.
+	Servers        Servers        // Servers contains the configuration for various servers.
+	Datastore      Datastore      // Datastore contains the configuration for the database.
 }
 
 // GrpcServer represents the configuration for a gRPC server.
@@ -54,4 +55,9 @@ type MetricServer struct {
 	Port        int         // Port is the port number on which the metric server listens.
 	Token       string      // Token is the authentication token for the metric server.
 	Certificate Certificate // Certificate contains the TLS certificate configuration.
+}
+
+// Authentication represents the configuration for authentication.
+type Authentication struct {
+	CertFile string // CertFile is the path to the certificate file used to validate the JWT token.
 }
