@@ -1,87 +1,138 @@
 package errors
 
 import (
-	"errors"
+	"bytes"
+	"net/http"
+	"runtime"
+	"strconv"
+	"strings"
 )
 
+// Application error codes.
 const (
-	// NotFound error indicates a missing / not found record
-	NotFound        = "NotFound"
-	notFoundMessage = "Record not found"
-
-	// ValidationError indicates an error in input validation
-	ValidationError        = "ValidationError"
-	validationErrorMessage = "Validation error"
-
-	// ResourceAlreadyExists indicates a duplicate / already existing record
-	ResourceAlreadyExists     = "ResourceAlreadyExists"
-	alreadyExistsErrorMessage = "Resource already exists"
-
-	// RepositoryError indicates a repository (e.g database) error
-	RepositoryError        = "RepositoryError"
-	repositoryErrorMessage = "Error in repository operation"
-
-	// NotAuthenticated indicates an authentication error
-	NotAuthenticated             = "NotAuthenticated"
-	notAuthenticatedErrorMessage = "Not Authenticated"
-
-	// TokenGeneratorError indicates an token generation error
-	TokenGeneratorError        = "TokenGeneratorError"
-	tokenGeneratorErrorMessage = "Error in token generation"
-
-	// NotAuthorized indicates an authorization error
-	NotAuthorized             = "NotAuthorized"
-	notAuthorizedErrorMessage = "Not Authorized"
-
-	// UnknownError indicates an error that the app cannot find the cause for
-	UnknownError        = "UnknownError"
-	unknownErrorMessage = "Something went wrong"
+	// CONFLICT - An action cannot be performed.
+	CONFLICT = "conflict"
+	// INTERNAL - Error within the application.
+	INTERNAL = "internal"
+	// INVALID - Validation failed.
+	INVALID = "invalid"
+	// NOTFOUND - Entity does not exist.
+	NOTFOUND = "not_found"
+	// UNKNOWN - Application unknown error.
+	UNKNOWN = "unknown"
+	// UNAUTHORIZED - User is not authorized.
+	UNAUTHORIZED = "unauthorized"
+	// FORBIDDEN - User is forbidden from performing an action.
+	FORBIDDEN = "forbidden"
 )
 
-// AppError defines an application (domain) error
-type AppError struct {
-	Err  error
-	Type string
+var (
+	// DefaultCode is the default code returned when
+	// none is specified.
+	DefaultCode = INTERNAL
+	// GlobalError is a general message when no error message
+	// has been found.
+	GlobalError = "An error has occurred."
+)
+
+// Error defines a standard application error.
+type Error struct {
+	// The application error code.
+	Code string `json:"code" bson:"code"`
+	// A human-readable message to send back to the end user.
+	Message string `json:"message" bson:"message"`
+	// Defines what operation is currently being run.
+	Operation string `json:"operation" bson:"op"`
+	// The error that was returned from the caller.
+	Err      error `json:"error" bson:"error"`
+	fileLine string
+	pcs      []uintptr
 }
 
-// NewAppError initializes a new domain error using an error and its type.
-func NewAppError(err error, errType string) *AppError {
-	return &AppError{
-		Err:  err,
-		Type: errType,
+// Error returns the string representation of the error
+// message by implementing the error interface.
+func (e *Error) Error() string {
+	var buf bytes.Buffer
+
+	// Print the error code if there is one.
+	if e.Code != "" {
+		buf.WriteString("<" + e.Code + "> ")
 	}
+
+	// Print the file-line, if any.
+	if e.fileLine != "" {
+		buf.WriteString(e.fileLine + " - ")
+	}
+
+	// Print the current operation in our stack, if any.
+	if e.Operation != "" {
+		buf.WriteString(e.Operation + ": ")
+	}
+
+	// Print the original error message, if any.
+	if e.Err != nil {
+		buf.WriteString(e.Err.Error() + ", ")
+	}
+
+	// Print the message, if any.
+	if e.Message != "" {
+		buf.WriteString(e.Message)
+	}
+
+	return strings.TrimSuffix(strings.TrimSpace(buf.String()), ",")
 }
 
-// NewAppErrorWithType initializes a new default error for a given type.
-func NewAppErrorWithType(errType string) *AppError {
-	var err error
-
-	switch errType {
-	case NotFound:
-		err = errors.New(notFoundMessage)
-	case ValidationError:
-		err = errors.New(validationErrorMessage)
-	case ResourceAlreadyExists:
-		err = errors.New(alreadyExistsErrorMessage)
-	case RepositoryError:
-		err = errors.New(repositoryErrorMessage)
-	case NotAuthenticated:
-		err = errors.New(notAuthenticatedErrorMessage)
-	case NotAuthorized:
-		err = errors.New(notAuthorizedErrorMessage)
-	case TokenGeneratorError:
-		err = errors.New(tokenGeneratorErrorMessage)
-	default:
-		err = errors.New(unknownErrorMessage)
+// HTTPStatusCode is a convenience method used to get the appropriate
+// HTTP response status code for the respective error type.
+func (e *Error) HTTPStatusCode() int {
+	status := http.StatusInternalServerError
+	switch e.Code {
+	case CONFLICT:
+		return http.StatusConflict
+	case INVALID:
+		return http.StatusBadRequest
+	case NOTFOUND:
+		return http.StatusNotFound
 	}
-
-	return &AppError{
-		Err:  err,
-		Type: errType,
-	}
+	return status
 }
 
-// String converts the app error to a human-readable string.
-func (appErr *AppError) Error() string {
-	return appErr.Err.Error()
+// NewE returns an Error with the DefaultCode.
+func NewE(err error, message, op string) *Error {
+	return newError(err, message, DefaultCode, op)
+}
+
+// FileLine returns the file and line in which the error
+// occurred.
+func (e *Error) FileLine() string {
+	return e.fileLine
+}
+
+// RuntimeFrames returns function/file/line information.
+func (e *Error) RuntimeFrames() *runtime.Frames {
+	return runtime.CallersFrames(e.pcs)
+}
+
+// ProgramCounters returns the slice of PC values associated
+// with the error.
+func (e *Error) ProgramCounters() []uintptr {
+	return e.pcs
+}
+
+// StackTrace returns a string representation of the errors
+// stacktrace, where each trace is separated by a newline
+// and tab '\t'.
+func (e *Error) StackTrace() string {
+	trace := make([]string, 0, 100)
+	rFrames := e.RuntimeFrames()
+	frame, ok := rFrames.Next()
+	line := strconv.Itoa(frame.Line)
+	trace = append(trace, frame.Function+"(): "+e.Message)
+
+	for ok {
+		trace = append(trace, "\t"+frame.File+":"+line)
+		frame, ok = rFrames.Next()
+	}
+
+	return strings.Join(trace, "\n")
 }
