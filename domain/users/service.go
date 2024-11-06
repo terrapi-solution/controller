@@ -82,19 +82,19 @@ func (s *Service) UpdateStatus(id int, isActive bool) error {
 }
 
 // Me retrieves the user information of the currently logged-in user
-func (s *Service) Me(ctx *gin.Context) (*user.User, error) {
+func (s *Service) Me(ctx *gin.Context) (user.User, error) {
 	// Get the user claims from the context
 	subject, exists := ctx.Get("subject")
 	if !exists {
-		return nil, domainErrors.NewInternal(nil, "Unable to retrieve subject from context", "UserService.Me")
+		return user.User{}, domainErrors.NewInternal(nil, "Unable to retrieve subject from context", "UserService.Me")
 	}
 
 	// Get the user from the database
 	dbUser, err := s.user.ReadBySubject(subject.(string))
 	if err != nil {
-		return nil, err
+		return user.User{}, err
 	}
 
 	// Return current user information
-	return &dbUser, nil
+	return dbUser, nil
 }
