@@ -27,6 +27,9 @@ func NewHttpHandler() http.Handler {
 	// Internal middleware
 	registerInternalMiddleware(router)
 
+	// Static routes
+	registerStaticRoutes(router)
+
 	// Base route definition
 	defaultGroup := router.Group("/")
 	registerRoutes(defaultGroup)
@@ -54,4 +57,12 @@ func registerRoutes(defaultGroup *gin.RouterGroup) {
 	// v1 route
 	v1Group := defaultGroup.Group("/v1")
 	v1.NewRoutesFactory()(v1Group)
+}
+
+// registerStaticRoutes registers static routes to the router.
+func registerStaticRoutes(router *gin.Engine) {
+	router.StaticFile("/", "./static/index.html")
+	router.StaticFile("/favicon.ico", "./static/favicon.ico")
+	router.StaticFile("/index.css", "./static/index.css")
+	router.StaticFile("/background.svg", "./static/background.svg")
 }
