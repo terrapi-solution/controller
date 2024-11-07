@@ -3,6 +3,7 @@ package permission
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 	"github.com/terrapi-solution/controller/internal/user"
 	"net/http"
 )
@@ -17,6 +18,7 @@ func Handler(roles ...user.Role) gin.HandlerFunc {
 		}
 
 		if !hasRequiredRole(u, roles) {
+			log.Err(err).Msgf("user does not have the required role: %v", roles)
 			respondWithError(c, http.StatusForbidden, "forbidden")
 			return
 		}
@@ -32,7 +34,7 @@ func respondWithError(c *gin.Context, status int, message string) {
 }
 
 // hasRequiredRole checks if the user has the required role
-func hasRequiredRole(user user.User, roles []user.Role) bool {
+func hasRequiredRole(user *user.User, roles []user.Role) bool {
 	for _, r := range roles {
 		if user.Role == r {
 			return true
@@ -42,17 +44,17 @@ func hasRequiredRole(user user.User, roles []user.Role) bool {
 }
 
 // getUserFromContext is a helper function to get the user from the gin context
-func getUserFromContext(c *gin.Context) (user.User, error) {
+func getUserFromContext(c *gin.Context) (*user.User, error) {
 	// Retrieve the user from the context
 	u, exists := c.Get("user")
 	if !exists {
-		return user.User{}, errors.New("user not found in the context")
+		return nil, errors.New("user not found in the context")
 	}
 
 	// Parse the user from the context
-	userParsed, valid := u.(user.User)
+	userParsed, valid := u.(*user.User)
 	if !valid {
-		return user.User{}, errors.New("unable to parse user from context")
+		return nil, errors.New("unable to parse user from context")
 	}
 
 	return userParsed, nil
