@@ -27,16 +27,11 @@ func Handler(roles ...user.Role) gin.HandlerFunc {
 	}
 }
 
-// respondWithError sends a JSON response with the given status and message
-func respondWithError(c *gin.Context, status int, message string) {
-	c.JSON(status, gin.H{"status": status, "message": message})
-	c.Abort()
-}
-
 // hasRequiredRole checks if the user has the required role
 func hasRequiredRole(user *user.User, roles []user.Role) bool {
 	for _, r := range roles {
 		if user.Role == r {
+			log.Debug().Msgf("User has the required role: %v", r)
 			return true
 		}
 	}
@@ -46,16 +41,24 @@ func hasRequiredRole(user *user.User, roles []user.Role) bool {
 // getUserFromContext is a helper function to get the user from the gin context
 func getUserFromContext(c *gin.Context) (*user.User, error) {
 	// Retrieve the user from the context
+	log.Debug().Msg("Attempting to retrieve user from context")
 	u, exists := c.Get("user")
 	if !exists {
 		return nil, errors.New("user not found in the context")
 	}
 
-	// Parse the user from the context
+	// Parse user from the context
 	userParsed, valid := u.(*user.User)
+	log.Debug().Msg("Parsing user from the context")
 	if !valid {
 		return nil, errors.New("unable to parse user from context")
 	}
 
 	return userParsed, nil
+}
+
+// respondWithError sends a JSON response with the given status and message
+func respondWithError(c *gin.Context, status int, message string) {
+	c.JSON(status, gin.H{"status": status, "message": message})
+	c.Abort()
 }
