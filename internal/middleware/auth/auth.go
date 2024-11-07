@@ -24,8 +24,12 @@ func Handler(secret string) gin.HandlerFunc {
 		// Parse the public key from the SecretKey
 		key, err := parsePublicKey(secret)
 		if err != nil {
-			handleError(c, http.StatusUnauthorized, "Invalid Token Signature")
-			return
+			log.Error().Err(err).Msg("Error parsing token")
+			if errors.Is(err, jwt.ErrSignatureInvalid) {
+				handleError(c, http.StatusUnauthorized, "Invalid Token Signature")
+			} else {
+				handleError(c, http.StatusBadRequest, "Bad Request")
+			}
 		}
 
 		// Validate the token sent by the client
@@ -111,7 +115,14 @@ func handleError(c *gin.Context, status int, message string) {
 
 // storeUserInContext stores the user in the context
 func storeUserInContext(c *gin.Context, token *jwt.Token) {
-	mapClaims := token.Claims.(jwt.MapClaims)
+	// Get the claims from the token
+	mapClaims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		log.Error().Msg("Error asserting token claims")
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "Error asserting token claims"})
+		c.Abort()
+		return
+	}
 
 	// Get the subject from the token
 	sub, err := mapClaims.GetSubject()

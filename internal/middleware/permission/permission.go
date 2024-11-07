@@ -50,10 +50,10 @@ func getUserFromContext(c *gin.Context) (user.User, error) {
 	}
 
 	// Parse the user from the context
-	userParsed, valid := u.(*user.User)
+	userParsed, valid := u.(user.User)
 	if !valid {
 		return user.User{}, errors.New("unable to parse user from context")
 	}
 
-	return *userParsed, nil
+	return userParsed, nil
 }
