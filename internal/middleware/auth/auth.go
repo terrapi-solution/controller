@@ -91,8 +91,10 @@ func parseToken(c *gin.Context, clientToken string, key *rsa.PublicKey) (bool, *
 		if errors.Is(err, jwt.ErrSignatureInvalid) {
 			handleError(c, http.StatusUnauthorized, "Invalid Token Signature")
 		} else {
+			log.Error().Err(err).Msg("Error parsing token")
 			handleError(c, http.StatusBadRequest, "Bad Request")
 		}
+
 		return false, nil
 	}
 
