@@ -3,10 +3,10 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/terrapi-solution/controller/internal/middleware/header"
+	"github.com/terrapi-solution/controller/router/http/api"
 	"github.com/terrapi-solution/controller/router/http/errors"
 	"github.com/terrapi-solution/controller/router/http/health"
 	"github.com/terrapi-solution/controller/router/http/swagger"
-	"github.com/terrapi-solution/controller/router/http/v1"
 	"net/http"
 )
 
@@ -47,16 +47,15 @@ func registerInternalMiddleware(router *gin.Engine) {
 }
 
 // registerRoutes registers all the routes to the default group.
-func registerRoutes(defaultGroup *gin.RouterGroup) {
-	swagger.NewRoutesFactory()(defaultGroup)
+func registerRoutes(router *gin.RouterGroup) {
+	swagger.NewRoutesFactory()(router)
 
 	// health route
-	healthGroup := defaultGroup.Group("/health")
+	healthGroup := router.Group("/health")
 	health.NewRoutesFactory()(healthGroup)
 
-	// v1 route
-	v1Group := defaultGroup.Group("/v1")
-	v1.NewRoutesFactory()(v1Group)
+	// api route
+	api.NewRoutesFactory()(router)
 }
 
 // registerStaticRoutes registers static routes to the router.

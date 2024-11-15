@@ -10,8 +10,8 @@ import (
 // @Tags    🍏 Health
 // @Accept  json
 // @Produce json
-// @Success 200 {object} responseHealth
-// @Failure 500 {object} errors.AppError
+// @Success 200 {object} errors.Error
+// @Failure 500 {object} errors.Error
 // @Router  /health [get]
 func get(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, &responseHealth{Status: "ok"})
