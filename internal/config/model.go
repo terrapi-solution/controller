@@ -2,13 +2,13 @@ package config
 
 // Config represents the overall configuration for the application.
 type Config struct {
-	Authentication Authentication // Authentication contains the configuration for authentication.
-	Servers        Servers        // Servers contains the configuration for various servers.
-	Datastore      Datastore      // Datastore contains the configuration for the database.
+	Servers   Servers   // Servers contains the configuration for various servers.
+	Datastore Datastore // Datastore contains the configuration for the database.
 }
 
 // GrpcServer represents the configuration for a gRPC server.
 type GrpcServer struct {
+	Status        bool        // Status indicates whether gRPC is enabled.
 	Host          string      // Host is the hostname or IP address of the gRPC server.
 	Port          int         // Port is the port number on which the gRPC server listens.
 	Certificate   Certificate // Certificate contains the TLS certificate configuration.
@@ -42,15 +42,18 @@ type Servers struct {
 
 // RestServer represents the configuration for a REST server.
 type RestServer struct {
-	Host          string      // Host is the hostname or IP address of the REST server.
-	Port          int         // Port is the port number on which the REST server listens.
-	Certificate   Certificate // Certificate contains the TLS certificate configuration.
-	StrictCurves  bool        // StrictCurves indicates whether to enforce strict elliptic curves.
-	StrictCiphers bool        // StrictCiphers indicates whether to enforce strict ciphers.
+	Status         bool           // Status indicates whether REST is enabled.
+	Host           string         // Host is the hostname or IP address of the REST server.
+	Port           int            // Port is the port number on which the REST server listens.
+	Certificate    Certificate    // Certificate contains the TLS certificate configuration.
+	StrictCurves   bool           // StrictCurves indicates whether to enforce strict elliptic curves.
+	StrictCiphers  bool           // StrictCiphers indicates whether to enforce strict ciphers.
+	Authentication Authentication // Authentication contains the configuration for authentication.
 }
 
 // MetricServer represents the configuration for a metric server.
 type MetricServer struct {
+	Status      bool        // Status indicates whether metrics are enabled.
 	Host        string      // Host is the hostname or IP address of the metric server.
 	Port        int         // Port is the port number on which the metric server listens.
 	Token       string      // Token is the authentication token for the metric server.
