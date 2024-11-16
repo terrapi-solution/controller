@@ -14,14 +14,14 @@ const (
 )
 
 type Module struct {
-	ID        int        `gorm:"primaryKey" json:"id" filter:"filterable"`
-	Name      string     `gorm:"uniqueIndex;not null" filter:"searchable;filterable"`
-	Type      TypeModule `gorm:"not null" json:"type" filter:"filterable"`
-	Config    []byte     `gorm:"not null"`
-	CreatedAt time.Time  `gorm:"autoCreateTime"`
-	UpdatedAt time.Time  `gorm:"autoUpdateTime"`
+	ID     int        `gorm:"primaryKey" json:"id" filter:"filterable"`
+	Name   string     `gorm:"uniqueIndex;not null" filter:"searchable;filterable"`
+	Type   TypeModule `gorm:"not null" json:"type" filter:"filterable"`
+	Config []byte
 	trackable.CreatedBy
+	CreatedAt time.Time `gorm:"autoCreateTime"`
 	trackable.UpdatedBy
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 }
 
 func (u *Module) BeforeCreate(tx *gorm.DB) (err error) {
