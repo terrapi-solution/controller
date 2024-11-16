@@ -14,13 +14,13 @@ type UpdatedBy struct {
 
 // BeforeCreate sets the created by field
 func (t *CreatedBy) BeforeCreate(ctx *gorm.DB) (err error) {
-	t.CreatedBy = getUserID(ctx)
+	ctx.Statement.SetColumn("created_by", t.CreatedBy)
 	return nil
 }
 
 // BeforeUpdate sets the updated by field
 func (t *UpdatedBy) BeforeUpdate(ctx *gorm.DB) (err error) {
-	t.UpdatedBy = getUserID(ctx)
+	ctx.Statement.SetColumn("updated_by", t.UpdatedBy)
 	return nil
 }
 
