@@ -66,6 +66,8 @@ func parseToken(c *gin.Context, clientToken string, key *rsa.PublicKey) (bool, *
 		if errors.Is(err, jwt.ErrTokenSignatureInvalid) {
 			c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "message": "Invalid Token Signature"})
 			c.Abort()
+		} else if errors.Is(err, jwt.ErrTokenExpired) {
+			c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "message": "Token Expired"})
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Bad Request"})
 			c.Abort()
