@@ -10,7 +10,7 @@ type PlanResponseDto struct {
 	ID        int        `json:"id"`
 	Name      string     `json:"name"`
 	Type      plan.Type  `json:"type"`
-	State     plan.State `json:"states"`
+	State     plan.State `json:"state"`
 	Schedule  string     `json:"schedule"`
 	ModuleID  int        `json:"module_id"`
 	CreatedBy string     `json:"created_by"`
