@@ -47,7 +47,7 @@ type Plan struct {
 	Type Type `gorm:"default:'default'"`
 
 	// States defines the state of the execution.
-	States State `gorm:"default:'pending'"`
+	State State `gorm:"default:'pending'"`
 
 	// Schedule defines the schedule of the execution.
 	// if the plan is of type fire_and_forget, this field is set to "none"
