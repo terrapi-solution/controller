@@ -9,15 +9,27 @@ import (
 type TypeModule string
 
 const (
+	// UndefinedType represents an undefined module type
 	UndefinedType TypeModule = "undefined"
-	GitType       TypeModule = "git"
+	// GitType represents a git module type
+	GitType TypeModule = "git"
 )
 
 type Module struct {
-	ID     int        `gorm:"primaryKey" json:"id" filter:"filterable"`
-	Name   string     `gorm:"uniqueIndex;not null" filter:"searchable;filterable"`
-	Type   TypeModule `gorm:"not null" json:"type" filter:"filterable"`
+	// ID defines the unique identifier.
+	ID int `gorm:"primaryKey" json:"id" filter:"filterable"`
+
+	// Name defines the unique name of the module.
+	Name string `gorm:"uniqueIndex;not null" filter:"searchable;filterable"`
+
+	// Type defines the type of the module.
+	Type TypeModule `gorm:"not null" json:"type" filter:"filterable"`
+
+	// Config defines the configuration of the module.
+	// It is a JSON object that contains the configuration of the module.
 	Config []byte
+
+	// Audit fields
 	trackable.CreatedBy
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	trackable.UpdatedBy
