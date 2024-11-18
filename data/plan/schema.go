@@ -58,7 +58,7 @@ type Plan struct {
 	Module   module.Module `gorm:"foreignKey:ModuleID;references:ID"`
 
 	// Variables defines the variables of the plan.
-	Variables *[]planVariable.PlanVariable `gorm:"foreignKey:PlanID;references:ID"`
+	Variables []planVariable.PlanVariable `gorm:"foreignKey:PlanID;references:ID"`
 
 	// Audit fields
 	trackable.CreatedBy
