@@ -13,6 +13,8 @@ func NewRoutesFactory() func(group *gin.RouterGroup) {
 
 		modulesGroup := group.Group("/plans")
 		modulesGroup.GET("", errors.HandlerWithErrorWrapper(endpoints.list))
+		modulesGroup.POST("", errors.HandlerWithErrorWrapper(endpoints.add))
+		modulesGroup.POST("/:id/cancel", errors.HandlerWithErrorWrapper(endpoints.cancel))
 
 	}
 }
