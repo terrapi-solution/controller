@@ -83,6 +83,34 @@ func (receiver *planEndpoints) add(ctx *gin.Context) error {
 	return nil
 }
 
+// read is used to read an execution plan.
+// @Summary Read an execution plan.
+// @Security Bearer
+// @Tags 🍑 Plans
+// @Accept  json
+// @Produce json
+// @Param   id path string true "Plan ID"
+// @Success 200 {object} PlanResponseDto
+// @Failure 404 {object} errors.Error
+// @Router  /api/v1/plans/{id} [get]
+func (receiver *planEndpoints) read(ctx *gin.Context) error {
+	// Get the ID from the URL
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return domainErrors.NewNotFound(nil, "Module not found", "ModuleRoute.Read")
+	}
+
+	// Get the plan from the service
+	result, err := receiver.planSvc.Read(id)
+	if err != nil {
+		return err
+	}
+
+	// Return the response
+	ctx.JSON(http.StatusOK, toPlanDto(result))
+	return nil
+}
+
 // cancel is used to cancel an execution plan.
 // @Summary Cancel an execution plan.
 // @Security Bearer

@@ -66,6 +66,16 @@ func (s *Service) Add(ctx *gin.Context, req PlanRequest) (plan.Plan, error) {
 	return planModel, nil
 }
 
+// Read retrieves a plan entry from the database
+func (s *Service) Read(id int) (plan.Plan, error) {
+	entry, err := s.plan.Read(id)
+	if err != nil {
+		return plan.Plan{}, err
+	}
+
+	return entry, nil
+}
+
 // AddValidation validates the request to add a plan to the database
 func (s *Service) AddValidation(req PlanRequest) error {
 	// Validate the request
