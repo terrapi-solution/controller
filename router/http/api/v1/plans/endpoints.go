@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	domainErrors "github.com/terrapi-solution/controller/domain/errors"
 	"github.com/terrapi-solution/controller/domain/plan"
+	"github.com/terrapi-solution/controller/domain/planVariable"
 	"gorm.io/gorm"
 	"net/http"
 	"strconv"
@@ -11,13 +12,15 @@ import (
 
 // deploymentEndpoints is the controller for the deployment entity.
 type planEndpoints struct {
-	svc plan.Service
+	planSvc     plan.Service
+	variableSvc planVariable.Service
 }
 
 // newPlanEndpoints is used to create a new plan controller.
 func newPlanEndpoints(db *gorm.DB) *planEndpoints {
 	return &planEndpoints{
-		svc: plan.New(db),
+		planSvc:     plan.New(db),
+		variableSvc: planVariable.New(db),
 	}
 }
 
@@ -37,7 +40,7 @@ func newPlanEndpoints(db *gorm.DB) *planEndpoints {
 // @Router  /api/v1/plans [get]
 func (receiver *planEndpoints) list(ctx *gin.Context) error {
 	// Get the results from the service
-	results, err := receiver.svc.PaginateList(ctx)
+	results, err := receiver.planSvc.PaginateList(ctx)
 	if err != nil {
 		return err
 	}
@@ -70,7 +73,7 @@ func (receiver *planEndpoints) add(ctx *gin.Context) error {
 	}
 
 	// Create the plan
-	result, err := receiver.svc.Add(ctx, request)
+	result, err := receiver.planSvc.Add(ctx, request)
 	if err != nil {
 		return err
 	}
@@ -98,12 +101,52 @@ func (receiver *planEndpoints) cancel(ctx *gin.Context) error {
 	}
 
 	// Cancel the plan
-	err = receiver.svc.Cancel(ctx, id)
+	err = receiver.planSvc.Cancel(ctx, id)
 	if err != nil {
 		return err
 	}
 
 	// Return the response
 	ctx.Status(http.StatusNoContent)
+	return nil
+}
+
+// readVariable is used to read a variable from the execution plan.
+// @Summary Read a variable from the execution plan.
+// @Security Bearer
+// @Tags 🍑 Plans
+// @Accept  json
+// @Produce json
+// @Param   id path string true "Variable ID"
+// @Param   search       query string false "Search"
+// @Param   filter       query []string false "Filter"
+// @Param   page         query int false "Page" default(1) minimum(1)
+// @Param   page_size    query int false "Page size" default(10) minimum(1) maximum(100)
+// @Param   order_by     query string false "Order by" default(id)
+// @Param   order_direction query string false "Order direction" default(desc) enum(desc,asc)
+// @Success 200 {object} PlanVariableResponseDto
+// @Failure 404 {object} errors.Error
+// @Router  /api/v1/plans/{id}/variables [get]
+func (receiver *planEndpoints) listVariable(ctx *gin.Context) error {
+	// Get the ID from the URL
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		return domainErrors.NewNotFound(nil, "Module not found", "ModuleRoute.Read")
+	}
+
+	// Get the variable from the service
+	results, err := receiver.variableSvc.PaginateList(id, ctx)
+	if err != nil {
+		return err
+	}
+
+	// Convert the results to the response model
+	responseItems := make([]PlanVariableResponseDto, len(results))
+	for i, element := range results {
+		responseItems[i] = toVariableDto(element)
+	}
+
+	// Return the response
+	ctx.JSON(http.StatusOK, VariableResponsesDto{Data: responseItems})
 	return nil
 }

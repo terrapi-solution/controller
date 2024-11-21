@@ -9,6 +9,7 @@ import (
 	domainErrors "github.com/terrapi-solution/controller/domain/errors"
 	"github.com/terrapi-solution/controller/internal/filter"
 	"gorm.io/gorm"
+	"slices"
 	"strings"
 )
 
@@ -118,7 +119,8 @@ func (s *Service) Cancel(ctx *gin.Context, id int) error {
 	}
 
 	// Check if the plan can be cancelled
-	if planModel.State != plan.PendingState && planModel.State != plan.RunningState {
+	invalid := []plan.State{plan.PendingState, plan.RunningState}
+	if !slices.Contains(invalid, planModel.State) {
 		return domainErrors.NewInvalid(nil, "Plan cannot be cancelled", "PlanService.Cancel")
 	}
 
@@ -126,6 +128,29 @@ func (s *Service) Cancel(ctx *gin.Context, id int) error {
 	planModel.State = plan.CanceledState
 	if _, err = s.plan.Update(id, planModel, ctx); err != nil {
 		return domainErrors.NewInternal(err, "Error updating plan", "PlanService.Cancel")
+	}
+
+	return nil
+}
+
+// Retry retries a plan in the database
+func (s *Service) Retry(ctx *gin.Context, id int) error {
+	// Get the plan from the database
+	planModel, err := s.plan.Read(id)
+	if err != nil {
+		return err
+	}
+
+	// Check if the plan can be retried
+	invalid := []plan.State{plan.ErroredState, plan.UnreachableState, plan.CanceledState}
+	if !slices.Contains(invalid, planModel.State) {
+		return domainErrors.NewInvalid(nil, "Plan cannot be retried", "PlanService.Retry")
+	}
+
+	// Update the plan state to pending state in the database
+	planModel.State = plan.PendingState
+	if _, err = s.plan.Update(id, planModel, ctx); err != nil {
+		return domainErrors.NewInternal(err, "Error updating plan", "PlanService.Retry")
 	}
 
 	return nil

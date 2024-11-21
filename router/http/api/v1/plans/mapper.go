@@ -20,7 +20,7 @@ func toPlanDto(entity plan.Plan) PlanResponseDto {
 	}
 }
 
-func PlanVariableDto(entity planVariable.PlanVariable) PlanVariableResponseDto {
+func toVariableDto(entity planVariable.PlanVariable) PlanVariableResponseDto {
 	// Remove sensitive data from the response
 	var dataValue string
 	if entity.Sensitive {

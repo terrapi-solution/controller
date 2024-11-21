@@ -30,3 +30,7 @@ type PlanVariableResponseDto struct {
 	Category  planVariable.Category `json:"category"`
 	Sensitive bool                  `json:"sensitive"`
 }
+
+type VariableResponsesDto struct {
+	Data []PlanVariableResponseDto `json:"data"`
+}
