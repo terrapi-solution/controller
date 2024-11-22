@@ -29,7 +29,7 @@ func New(db *gorm.DB) Service {
 
 // Read retrieves a module entry from the database
 func (s *Service) Read(id int) (module.Module, error) {
-	entry, err := s.module.Read(id)
+	entry, err := s.module.Generic.Read(id)
 	if err != nil {
 		return module.Module{}, err
 	}
@@ -39,11 +39,11 @@ func (s *Service) Read(id int) (module.Module, error) {
 
 // Delete deletes a module entry to the database
 func (s *Service) Delete(id int, ctx context.Context) error {
-	if !s.module.Exists(id) {
+	if !s.module.Generic.Exists(id) {
 		return domainErrors.NewNotFound(nil, "Module not found", "ModuleService.Delete")
 	}
 
-	if err := s.module.Delete(id, ctx); err != nil {
+	if err := s.module.Generic.Delete(id, ctx); err != nil {
 		return err
 	}
 
@@ -53,7 +53,7 @@ func (s *Service) Delete(id int, ctx context.Context) error {
 // List retrieves all module entries from the database
 // This function is used only for internal purposes
 func (s *Service) List() ([]module.Module, error) {
-	return s.module.List()
+	return s.module.Generic.List()
 }
 
 // PaginateList retrieves a paginated list of module entries from the database
@@ -78,7 +78,7 @@ func (s *Service) Create(request ModuleRequest, ctx context.Context) (module.Mod
 	}
 
 	// Check if the module name already exists
-	if s.module.ExistsByName(request.Name) {
+	if s.module.Generic.ExistsByName(request.Name) {
 		return module.Module{}, domainErrors.NewConflict(nil, "Module already exists with the name: "+request.Name, "ModuleService.Create")
 	}
 
@@ -87,7 +87,7 @@ func (s *Service) Create(request ModuleRequest, ctx context.Context) (module.Mod
 	// Create a new module entry in the database
 	model := request.toDBModel()
 	model.Type = module.UndefinedType
-	entry, err := s.module.Create(model, ctx)
+	entry, err := s.module.Generic.Create(model, ctx)
 	if err != nil {
 		return module.Module{}, err
 	}
@@ -104,7 +104,7 @@ func (s *Service) SetGitConfig(id int, request GitConfigRequest, ctx context.Con
 	}
 
 	// Check if the module exists
-	current, err := s.module.Read(id)
+	current, err := s.module.Generic.Read(id)
 	if err != nil {
 		return err
 	}
@@ -120,7 +120,7 @@ func (s *Service) SetGitConfig(id int, request GitConfigRequest, ctx context.Con
 	current.Config = configBytes
 
 	// Update the module in the database
-	if _, err := s.module.Update(id, current, ctx); err != nil {
+	if _, err := s.module.Generic.Update(id, current, ctx); err != nil {
 		return err
 	}
 

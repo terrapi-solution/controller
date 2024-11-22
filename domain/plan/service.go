@@ -57,7 +57,7 @@ func (s *Service) Add(ctx *gin.Context, req PlanRequest) (plan.Plan, error) {
 	planModel := req.toPlanData()
 
 	// Create the plan to the database
-	_, err = s.plan.Create(planModel, ctx)
+	_, err = s.plan.Generic.Create(planModel, ctx)
 	if err != nil {
 		return plan.Plan{}, domainErrors.NewInternal(err, "Error creating plan", "PlanService.Add")
 	}
@@ -68,7 +68,7 @@ func (s *Service) Add(ctx *gin.Context, req PlanRequest) (plan.Plan, error) {
 
 // Read retrieves a plan entry from the database
 func (s *Service) Read(id int) (plan.Plan, error) {
-	entry, err := s.plan.Read(id)
+	entry, err := s.plan.Generic.Read(id)
 	if err != nil {
 		return plan.Plan{}, err
 	}
@@ -85,13 +85,13 @@ func (s *Service) AddValidation(req PlanRequest) error {
 	}
 
 	// Check if the module exists
-	moduleExists := s.module.Exists(req.ModuleID)
+	moduleExists := s.module.Generic.Exists(req.ModuleID)
 	if !moduleExists {
 		return domainErrors.NewInternal(err, "Error checking if module exists", "PlanService.AddValidation")
 	}
 
 	// Check if the plan already exists
-	planExists := s.plan.ExistsByName(req.Name)
+	planExists := s.plan.Generic.ExistsByName(req.Name)
 	if planExists {
 		return domainErrors.NewConflict(nil, "Plan already exists", "PlanService.AddValidation")
 	}
@@ -123,7 +123,7 @@ func (s *Service) AddValidation(req PlanRequest) error {
 // TODO: Notify all workers to stop processing the plan
 func (s *Service) Cancel(ctx *gin.Context, id int) error {
 	// Get the plan from the database
-	planModel, err := s.plan.Read(id)
+	planModel, err := s.plan.Generic.Read(id)
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func (s *Service) Cancel(ctx *gin.Context, id int) error {
 
 	// Update the plan state to cancelled in the database
 	planModel.State = plan.CanceledState
-	if _, err = s.plan.Update(id, planModel, ctx); err != nil {
+	if _, err = s.plan.Generic.Update(id, planModel, ctx); err != nil {
 		return domainErrors.NewInternal(err, "Error updating plan", "PlanService.Cancel")
 	}
 
@@ -146,7 +146,7 @@ func (s *Service) Cancel(ctx *gin.Context, id int) error {
 // Retry retries a plan in the database
 func (s *Service) Retry(ctx *gin.Context, id int) error {
 	// Get the plan from the database
-	planModel, err := s.plan.Read(id)
+	planModel, err := s.plan.Generic.Read(id)
 	if err != nil {
 		return err
 	}
@@ -159,7 +159,7 @@ func (s *Service) Retry(ctx *gin.Context, id int) error {
 
 	// Update the plan state to pending state in the database
 	planModel.State = plan.PendingState
-	if _, err = s.plan.Update(id, planModel, ctx); err != nil {
+	if _, err = s.plan.Generic.Update(id, planModel, ctx); err != nil {
 		return domainErrors.NewInternal(err, "Error updating plan", "PlanService.Retry")
 	}
 
