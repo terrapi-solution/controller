@@ -9,19 +9,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type Store[T any] struct {
+type Generic[T any] struct {
 	db *gorm.DB
 }
 
 // New creates a new Store struct
-func New[T any](db *gorm.DB) Store[T] {
-	return Store[T]{
+func New[T any](db *gorm.DB) Generic[T] {
+	return Generic[T]{
 		db: db,
 	}
 }
 
 // Read retrieves an entry from the database
-func (s *Store[T]) Read(id int) (T, error) {
+func (s *Generic[T]) Read(id int) (T, error) {
 	var entry T
 	err := s.db.First(&entry, id).Error
 	if err != nil {
@@ -34,7 +34,7 @@ func (s *Store[T]) Read(id int) (T, error) {
 }
 
 // Update updates an entry in the database
-func (s *Store[T]) Update(id int, request T, ctx context.Context) (T, error) {
+func (s *Generic[T]) Update(id int, request T, ctx context.Context) (T, error) {
 	var entry T
 	err := s.db.WithContext(ctx).Model(&entry).Where("id = ?", id).Updates(&request).Error
 	if err != nil {
@@ -44,7 +44,7 @@ func (s *Store[T]) Update(id int, request T, ctx context.Context) (T, error) {
 }
 
 // ExistsByName checks if an entry exists in the database
-func (s *Store[T]) ExistsByName(name string) bool {
+func (s *Generic[T]) ExistsByName(name string) bool {
 	var entry T
 	var count int64
 	err := s.db.Model(&entry).Where("lower(name) = lower(?)", name).Count(&count).Error
@@ -55,7 +55,7 @@ func (s *Store[T]) ExistsByName(name string) bool {
 }
 
 // Create creates a new entry in the database
-func (s *Store[T]) Create(request T, ctx context.Context) (T, error) {
+func (s *Generic[T]) Create(request T, ctx context.Context) (T, error) {
 	var entry T
 	err := s.db.WithContext(ctx).Create(&request).Error
 	if err != nil {
@@ -69,7 +69,7 @@ func (s *Store[T]) Create(request T, ctx context.Context) (T, error) {
 }
 
 // Exists checks if an entry exists in the database
-func (s *Store[T]) Exists(id int) bool {
+func (s *Generic[T]) Exists(id int) bool {
 	var entry T
 	var count int64
 	if err := s.db.Model(&entry).Where("id = ?", id).Count(&count).Error; err != nil {
@@ -79,7 +79,7 @@ func (s *Store[T]) Exists(id int) bool {
 }
 
 // List retrieves all entries from the database
-func (s *Store[T]) List() ([]T, error) {
+func (s *Generic[T]) List() ([]T, error) {
 	var entries []T
 	if err := s.db.Find(&entries).Error; err != nil {
 		return nil, domainErrors.NewInternal(err, "Error executing SQL query", "DataStore.List")
@@ -88,7 +88,7 @@ func (s *Store[T]) List() ([]T, error) {
 }
 
 // Delete deletes an entry from the database
-func (s *Store[T]) Delete(id int, ctx context.Context) error {
+func (s *Generic[T]) Delete(id int, ctx context.Context) error {
 	var entry T
 	if err := s.db.WithContext(ctx).Delete(&entry, id).Error; err != nil {
 		return domainErrors.NewInternal(err, "Error executing SQL query", "DataStore.Delete")

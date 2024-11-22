@@ -7,7 +7,7 @@ import (
 
 // Store struct manages interactions with authors store
 type Store struct {
-	Generic data.Store[Plan]
+	data.Generic[Plan]
 }
 
 // New creates a new Store struct
