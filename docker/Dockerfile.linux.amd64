@@ -1,5 +1,5 @@
 # Use a specific version tag for better reproducibility
-FROM redhat/ubi9-micro:9.5-1731934928@sha256:31f00ba1d79523e182624c96e05b2f5ca66ea35d64959d84acdc8b670429415f
+FROM redhat/ubi9-micro:9.5-1733767087@sha256:111395a0b54d220c4ad821602a4a28807d6c4fb2feb19b43a6468a9d5f257463
 
 # Copy the binary to the appropriate directory
 COPY bin/controller /usr/bin/terrapi-controller
