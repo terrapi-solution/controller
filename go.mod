@@ -16,7 +16,7 @@ require (
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.4
 	github.com/terrapi-solution/protocol v1.2.6
-	google.golang.org/grpc v1.68.0
+	google.golang.org/grpc v1.69.2
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.12
 )
